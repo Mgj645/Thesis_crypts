@@ -17,7 +17,7 @@ public class Main {
 
     final static int noUsers = 300;
 
-    final static boolean register = false;
+    final static boolean register = true;
     final static boolean login = true;
 
 
