@@ -1,0 +1,20 @@
+plaintext - register
+209 ms
+md5 - register
+238 ms
+sha_224 - register
+500 ms
+sha_3 - register
+322 ms
+New Scheme - register
+2152 ms
+plaintext - login
+71 ms
+md5 - login
+176 ms
+sha_224 - login
+71 ms
+sha_3 - login
+104 ms
+New Scheme - login
+1244 ms
