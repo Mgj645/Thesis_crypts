@@ -1,12 +1,16 @@
 package com.company;
 
 import javax.crypto.Mac;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.util.Base64;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.HashSet;
 
 
@@ -14,10 +18,14 @@ public class newScheme implements SchemeInterface {
 
     HashSet<String> users;
     HashSet<String> usernames;
+    HashMap<String, String> plainUsers;
+
     final static String fileName = "newSchemeUsers.txt";
     final static String fileUserNames = "newSchemeUserNames.txt";
 
-    final static String key = "opakdoç";
+     static String sha1key = "CHUCK";
+    final static String aeskey = "15TYZfKX037oEaAerQL5ODcSrK6Ggfou";
+
     int count;
     final static int finalcount = 299;
 
@@ -25,6 +33,7 @@ public class newScheme implements SchemeInterface {
         count = 0;
         users = (HashSet<String>) readData(fileName);
         usernames = (HashSet<String>) readData(fileUserNames);
+        plainUsers = new HashMap<String, String>();
     }
 
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
@@ -105,16 +114,11 @@ public class newScheme implements SchemeInterface {
             return true;
         }
     }
-
-    public void save(){
-        writeData(users, fileName);
-        writeData(usernames, fileUserNames);
-    }
-
+    
     public String applyFunction(String username, String password) {
         String user = null;
         try {
-            user = calculateRFC2104HMAC(username + password, key);
+            user = calculateRFC2104HMAC(username + password, sha1key);
         } catch (SignatureException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -142,8 +146,7 @@ public class newScheme implements SchemeInterface {
         mac.init(signingKey);
         return toHexString(mac.doFinal(data.getBytes()));
     }
-
-
+    
     OutputStream ops = null;
     ObjectOutputStream objOps = null;
 
@@ -193,5 +196,18 @@ public class newScheme implements SchemeInterface {
             }
         }
         return null;
+    }
+
+    private void changeKey(){
+        String oldkey = sha1key;
+
+        sha1key = "DXeBGoKOLzydaiHtIG7qCdVkLo5cd7se";
+    }
+
+    private static Key generateKeyFromString(final String secKey) throws Exception {
+
+        byte[] decodedKey = Base64.getDecoder().decode(secKey);
+        SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+        return originalKey;
     }
 }

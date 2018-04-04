@@ -1,20 +1,32 @@
 plaintext - register
-209 ms
-md5 - register
-238 ms
-sha_224 - register
-500 ms
-sha_3 - register
-322 ms
-New Scheme - register
-2152 ms
+101 ms
 plaintext - login
-71 ms
+46 ms
+md5 - register
+197 ms
 md5 - login
-176 ms
+49 ms
+sha_224 - register
+94 ms
 sha_224 - login
-71 ms
+90 ms
+sha_3 - register
+156 ms
 sha_3 - login
-104 ms
+25 ms
+New Scheme - register
+1616 ms
 New Scheme - login
-1244 ms
+140 ms
+aes256 - login
+1558 ms
+aes256 - login
+810 ms
+aes256 - login
+725 ms
+aes256 - login
+932 ms
+aes256 - login
+1500 ms
+aes256 - login
+933 ms

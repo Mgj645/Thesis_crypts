@@ -3,23 +3,25 @@ package com.company;
 import java.io.*;
 
 public class Main {
-   //final static String[] uids = {"mgj", "miguelMgj", "nelsonP950", "user1234"};
-   //final static String[] pwds = {"abc12345", "lol12345", "password12345", "arvoreBELGAS"};
+    static String[] passwords;
+    static String[] usernames;
 
-    final static boolean plain = true;
-    final static boolean md5 = true;
-    final static boolean sha_224 = true;
-    final static boolean sha_3 = true;
+    final static boolean plain = false;
+    final static boolean md5 = false;
+    final static boolean sha_224 = false;
+    final static boolean sha_3 = false;
     final static boolean b_crypt = false;
-    final static boolean newScheme = true;
+
+    final static boolean aes256 = true;
+
+    final static boolean newScheme = false;
 
     final static boolean sequence_hash = false;
 
-    final static int noUsers = 300;
+    final static int noUsers = 200;
 
-    final static boolean register = true;
+    final static boolean register = false;
     final static boolean login = true;
-
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -37,6 +39,8 @@ public class Main {
             if (sha_3) runScheme ("sha_3", new SHA_3());
             if (b_crypt) runScheme ("B-CRYPT", new bcrypt());
             if (newScheme)  runScheme ("New Scheme", new newScheme());
+
+            if(aes256)  runScheme("aes256", new AES256());
 
             //if (sequence_hash) seqHash();
         } else if (command.equals(("2"))) {
@@ -87,9 +91,6 @@ public class Main {
         }
     }
 
-    static String[] passwords;
-    static String[] usernames;
-
     private static void simulateUsers() throws IOException {
         BufferedReader lines = new BufferedReader(new FileReader("passwords.txt"));
         String line = lines.readLine();
@@ -134,26 +135,6 @@ public class Main {
         }
         System.out.println("");
     }
-
-
-/*    private static void seqHash() {
-        sequenceHasher sh = new sequenceHasher();
-        System.out.print("Sequence Hasher");
-
-        if (register) {
-            for (int i = 0; i < noUsers; i++)
-                sh.register(usernames[i], passwords[i]);
-            System.out.print(" - Registration Completed");
-        }
-
-        if (login) {
-            for (int i = 0; i < noUsers; i++)
-                System.out.println(sh.login(usernames[i], passwords[i]));
-            System.out.print(" - Login Completed");
-        }
-
-        System.out.println("");
-    }*/
 
     static void writeTime(String name, long time) {
         try(FileWriter fw = new FileWriter("time.txt", true);
