@@ -4,6 +4,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import java.security.AlgorithmParameters;
 import java.security.Key;
+import java.util.HashMap;
 import java.util.Map;
 
 //import android.util.Base64;
@@ -40,7 +41,7 @@ public class AES256 extends Scheme implements SchemeInterface {
     }
 
     static byte[] iv;
-    public static byte[] cipher(String a, Key key)  {
+    public static byte[] cipher(HashMap<String, String> a, Key key)  {
         Cipher cipher;
 
 
@@ -50,7 +51,7 @@ public class AES256 extends Scheme implements SchemeInterface {
         cipher.init(Cipher.ENCRYPT_MODE, key);
         AlgorithmParameters params = cipher.getParameters();
         iv = params.getParameterSpec(IvParameterSpec.class).getIV();
-        byte[] ciphertext = cipher.doFinal(a.getBytes("UTF-8"));
+        byte[] ciphertext = cipher.doFinal(a.toString().getBytes("UTF-8"));
 
             return ciphertext;
 

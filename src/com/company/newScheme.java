@@ -4,36 +4,38 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
-import java.util.Base64;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.HashSet;
-
+import java.util.*;
+import java.util.UUID;
 
 public class newScheme implements SchemeInterface {
 
-    HashSet<String> users;
-    HashSet<String> usernames;
-    HashMap<String, String> plainUsers;
+    private HashSet<String> users;
+    private HashSet<String> usernames;
 
-    final static String fileName = "newSchemeUsers.txt";
-    final static String fileUserNames = "newSchemeUserNames.txt";
+    private final static String fileName = "newSchemeUsers.txt";
+    private final static String fileUserNames = "newSchemeUserNames.txt";
 
-     static String sha1key = "CHUCK";
-    final static String aeskey = "15TYZfKX037oEaAerQL5ODcSrK6Ggfou";
+    private static String sha1key = "CHUCK";
+    private final static String aeskey = "15TYZfKX037oEaAerQL5ODcSrK6Ggfou";
 
-    int count;
-    final static int finalcount = 299;
+    private int count;
+    private final static int finalcount = 299;
+
+    private ArrayList<ArrayList<String>> log;
+    private AES256 aes;
+    private byte[] cipherdb;
 
     public newScheme() {
         count = 0;
         users = (HashSet<String>) readData(fileName);
         usernames = (HashSet<String>) readData(fileUserNames);
-        plainUsers = new HashMap<String, String>();
+        log = new ArrayList<ArrayList<String>>();
+        aes = new AES256();
     }
 
     private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
@@ -58,6 +60,11 @@ public class newScheme implements SchemeInterface {
                 writeData(users, fileName);
                 writeData(usernames, fileUserNames);
             }
+
+            ArrayList<String> entry = new ArrayList<>() {{add("add");add(username);add(password);}};
+            log.add(entry);
+            dumpLog();
+
             return true;
         }
     }
@@ -74,6 +81,10 @@ public class newScheme implements SchemeInterface {
             users.add(trueuser2);
 
             writeData(users, fileName);
+
+            ArrayList<String> entry = new ArrayList<>() {{add("cp");add(username);add(password1);add(password2);}};
+            log.add(entry);
+
             return true;
         }
     }
@@ -96,6 +107,9 @@ public class newScheme implements SchemeInterface {
             writeData(users, fileName);
             writeData(usernames, fileUserNames);
 
+            ArrayList<String> entry = new ArrayList<>() {{add("cu");add(username1);add(username2);add(password);}};
+            log.add(entry);
+
             return true;
         }
     }
@@ -111,6 +125,10 @@ public class newScheme implements SchemeInterface {
 
             writeData(users, fileName);
             writeData(usernames, fileUserNames);
+
+            ArrayList<String> entry = new ArrayList<>() {{add("del");add(username);add(password);}};
+            log.add(entry);
+
             return true;
         }
     }
@@ -139,7 +157,7 @@ public class newScheme implements SchemeInterface {
         return formatter.toString();
     }
 
-    public static String calculateRFC2104HMAC(String data, String key)
+    private static String calculateRFC2104HMAC(String data, String key)
             throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
         SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
         Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
@@ -147,10 +165,10 @@ public class newScheme implements SchemeInterface {
         return toHexString(mac.doFinal(data.getBytes()));
     }
     
-    OutputStream ops = null;
-    ObjectOutputStream objOps = null;
+    private OutputStream ops = null;
+    private ObjectOutputStream objOps = null;
 
-    void writeData(Object users, String fileName) {
+    private void writeData(Object users, String fileName) {
         try {
             ops = new FileOutputStream(fileName);
             objOps = new ObjectOutputStream(ops);
@@ -169,7 +187,7 @@ public class newScheme implements SchemeInterface {
         }
     }
 
-    Object readData(String fileName) {
+    private Object readData(String fileName) {
         InputStream fileIs = null;
         ObjectInputStream objIs = null;
         Object users;
@@ -198,10 +216,71 @@ public class newScheme implements SchemeInterface {
         return null;
     }
 
-    private void changeKey(){
-        String oldkey = sha1key;
+    private void dumpLog(){
+        try {
+            HashMap<String, String> dbpw;
+            if (cipherdb != null) {
+                //decipher old ciphered db and put it in String
+                String db = aes.decipher(cipherdb, generateKeyFromString(aeskey));
 
-        sha1key = "DXeBGoKOLzydaiHtIG7qCdVkLo5cd7se";
+                //String to Map
+                dbpw = string2map(db);
+            }
+            else
+                dbpw = new HashMap<>();
+
+            //update the hashmap according to the log
+            for(ArrayList<String> entry : log){
+                switch(entry.get(0)){
+                    case "add":
+                        dbpw.put(entry.get(1), entry.get(2));
+                        break;
+                    case "cp":
+                        dbpw.replace(entry.get(1), entry.get(3));
+                        break;
+                    case "cu":
+                        dbpw.remove(entry.get(1));
+                        dbpw.put(entry.get(2), entry.get(3));
+                        break;
+                    case "del":
+                        dbpw.remove(entry.get(1));
+                        break;
+                    default: System.out.println("Something went terribly wrong");
+                }
+            }
+
+            log = new ArrayList<>();
+
+            //encrypt that bitch back
+            cipherdb = aes.cipher(dbpw, generateKeyFromString(aeskey));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+    private void changeKey(){
+        sha1key = UUID.randomUUID().toString();
+
+        users = new HashSet<>();
+        try {
+            HashMap<String, String> db = string2map(aes.decipher(cipherdb, generateKeyFromString(aeskey)));
+            Iterator it = db.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+                String user = applyFunction(  pair.getKey()+"|%%|", (String) pair.getValue());
+                users.add(user);
+                it.remove();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     private static Key generateKeyFromString(final String secKey) throws Exception {
@@ -210,4 +289,20 @@ public class newScheme implements SchemeInterface {
         SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
         return originalKey;
     }
+
+    private HashMap<String, String> string2map(String db){
+        Properties props = new Properties();
+        try {
+            props.load(new StringReader(db.substring(1, db.length() - 1).replace(", ", "\n")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        HashMap<String, String> dbpw = new HashMap<>();
+        for (Map.Entry<Object, Object> e : props.entrySet()) {
+            dbpw.put((String)e.getKey(), (String)e.getValue());
+        }
+
+        return dbpw;
+    }
+
 }
