@@ -6,21 +6,21 @@ public class Main {
     static String[] passwords;
     static String[] usernames;
 
-    final static boolean plain = false;
-    final static boolean md5 = false;
-    final static boolean sha_224 = false;
-    final static boolean sha_3 = false;
+    final static boolean plain = true;
+    final static boolean md5 = true;
+    final static boolean sha_224 = true;
+    final static boolean sha_3 = true;
     final static boolean b_crypt = false;
 
     final static boolean aes256 = true;
 
-    final static boolean newScheme = false;
+    final static boolean newScheme = true;
 
     final static boolean sequence_hash = false;
 
-    final static int noUsers = 200;
+    final static int noUsers = 3100;
 
-    final static boolean register = false;
+    final static boolean register = true;
     final static boolean login = true;
 
     public static void main(String[] args) throws IOException {
