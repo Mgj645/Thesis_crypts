@@ -5,6 +5,7 @@
  */
 package com.company.poly.edu.nyu.poly.pph;
 
+import com.company.SchemeInterface;
 import com.company.poly.com.tiemens.secretshare.engine.ShamirSchem;
 import com.company.poly.edu.nyu.poly.pph.model.PPHAccount;
 import com.company.poly.edu.nyu.poly.pph.model.ShareEntry;
@@ -27,7 +28,7 @@ import java.util.Properties;
  *
  * @author Ali Gholami <gholami@pdc.kth.se>
  */
-public class PolyPasswordHasher {
+public class PolyPasswordHasher implements SchemeInterface {
 
   private Properties props;
 
@@ -52,7 +53,7 @@ public class PolyPasswordHasher {
 
   private byte[] shamirData;
 
-  public PolyPasswordHasher(String propFile) throws UnsupportedEncodingException,
+  public PolyPasswordHasher(String propFile)  throws UnsupportedEncodingException,
           IOException {
 
     loadPPHProperties(propFile);
@@ -75,13 +76,12 @@ public class PolyPasswordHasher {
     users = new ArrayList<>();
 
   }
-
+  private final int shares = 5;
   /**
    * Create a user account.
    * <p>
    * @param username
    * @param password
-   * @param shares
    * @throws NoSuchAlgorithmException
    * @throws UnsupportedEncodingException
    * @throws InvalidKeyException
@@ -91,22 +91,19 @@ public class PolyPasswordHasher {
    * @throws BadPaddingException
    * @throws Exception
    */
-  public void createAccount(String username, String password, int shares) throws
-          NoSuchAlgorithmException, UnsupportedEncodingException,
-          InvalidKeyException, IllegalBlockSizeException,
-          InvalidAlgorithmParameterException, NoSuchPaddingException,
-          BadPaddingException, Exception {
+  public boolean register(String username, String password) throws
+   Exception {
 
     if (isAccountUnique(username)) {
-      return;
+      return false;
     }
 
     if (shares < 0 || shares > maxSharesSize) {
-      return;
+      return false;
     }
 
     if (shares + nextavailableshare > 255) {
-      return;
+      return false;
     }
 
     PPHAccount ppa = new PPHAccount(username, password);
@@ -165,6 +162,22 @@ public class PolyPasswordHasher {
     users.add(ppa);
 
     nextavailableshare = nextavailableshare + shares;
+    return true;
+  }
+
+  @Override
+  public boolean changePassword(String username, String password1, String password2) {
+    return false;
+  }
+
+  @Override
+  public boolean changeUsername(String username1, String username2, String password) {
+    return false;
+  }
+
+  @Override
+  public boolean deleteUser(String username, String password) {
+    return false;
   }
 
   /**
@@ -182,11 +195,7 @@ public class PolyPasswordHasher {
    * @throws BadPaddingException
    * @throws Exception
    */
-  public boolean isValidLogin(String username, String password) throws
-          NoSuchAlgorithmException, UnsupportedEncodingException,
-          InvalidKeyException, IllegalBlockSizeException,
-          InvalidAlgorithmParameterException, NoSuchPaddingException,
-          BadPaddingException, Exception {
+  public boolean login(String username, String password) throws Exception {
 
     PPHAccount u = findPPHAccount(username);
 

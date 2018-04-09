@@ -31,32 +31,32 @@ public class Main {
       pph = new PolyPasswordHasher(proprtyFile);
 
       // create admin accounts  
-      pph.createAccount("admin", "correct horse", pph.getThreshold() / 2);
+      pph.register("admin", "correct horse");
       
-      pph.createAccount("root", "battery staple", pph.getThreshold() / 2);
+      pph.register("root", "battery staple");
 
       // creatre user accounts
-      pph.createAccount("dennis", "menace", 0);
+      pph.register("dennis", "menace");
       
-      pph.createAccount("eve", "iamevil", 0);
+      pph.register("eve", "iamevil");
 
-      System.out.println("alic kitten " + pph.isValidLogin("alice", "kitten"));
+      System.out.println("alic kitten " + pph.login("alice", "kitten"));
       
-      System.out.println("alic bob " + pph.isValidLogin("alice", "bob"));
+      System.out.println("alic bob " + pph.login("alice", "bob"));
 
-      System.out.println("admin correct horse " + pph.isValidLogin("admin",
+      System.out.println("admin correct horse " + pph.login("admin",
               "correct horse"));
       
-      System.out.println("admin admin " + pph.isValidLogin("admin", "admin"));
+      System.out.println("admin admin " + pph.login("admin", "admin"));
 
-      System.out.println("denis password " + pph.isValidLogin("dennis",
+      System.out.println("denis password " + pph.login("dennis",
               "password"));
       
-      System.out.println("denis menace " + pph.isValidLogin("dennis", "menace"));
+      System.out.println("denis menace " + pph.login("dennis", "menace"));
 
-      System.out.println("eve password " + pph.isValidLogin("eve", "password"));
+      System.out.println("eve password " + pph.login("eve", "password"));
 
-      System.out.println("eve iamevil " + pph.isValidLogin("eve", "iamevil"));
+      System.out.println("eve iamevil " + pph.login("eve", "iamevil"));
 
     } catch (UnsupportedEncodingException | InvalidKeyException |
             IllegalBlockSizeException | InvalidAlgorithmParameterException |

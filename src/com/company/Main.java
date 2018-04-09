@@ -1,8 +1,58 @@
 package com.company;
 
-import java.io.*;
+import com.company.poly.edu.nyu.poly.pph.PolyPasswordHasher;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.stage.Stage;
 
-public class Main {
+import java.io.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+public class Main extends Application  {
+
+        @Override public void start(Stage stage) {
+            stage.setTitle("Bar Chart Sample");
+            final NumberAxis xAxis = new NumberAxis();
+            final CategoryAxis yAxis = new CategoryAxis();
+            final BarChart<Number,String> bc =
+                    new BarChart<Number,String>(xAxis,yAxis);
+            bc.setTitle(noUsers + " entradas");
+            xAxis.setLabel("Tempo em ms");
+            xAxis.setTickLabelRotation(90);
+            yAxis.setLabel("Esquema");
+
+            XYChart.Series series1 = new XYChart.Series();
+            series1.setName("Register Operations");
+            HashMap<String, double[]> time2 = new HashMap<>();
+            time2.putAll(time);
+            Iterator it = time.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+                series1.getData().add(new XYChart.Data(((double[]) pair.getValue())[0], pair.getKey()));
+            }
+
+            XYChart.Series series2 = new XYChart.Series();
+            series2.setName("Login Operations");
+            it = time2.entrySet().iterator();
+
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+                series2.getData().add(new XYChart.Data(((double[]) pair.getValue())[1], pair.getKey()));
+            }
+;
+
+            Scene scene  = new Scene(bc,800,600);
+            bc.getData().addAll(series1, series2);
+            stage.setScene(scene);
+            stage.show();
+        }
+
     static String[] passwords;
     static String[] usernames;
 
@@ -12,35 +62,41 @@ public class Main {
     final static boolean sha_3 = true;
     final static boolean b_crypt = false;
 
-    final static boolean aes256 = true;
+    final static boolean aes256 = false;
 
     final static boolean newScheme = true;
+    final static boolean polyPassword = false;
 
     final static boolean sequence_hash = false;
 
-    final static int noUsers = 3100;
+    final static int noUsers = 10000;
 
     final static boolean register = true;
     final static boolean login = true;
-
-    public static void main(String[] args) throws IOException {
+    static private HashMap<String, double[]> time;
+    public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Press 1 for auto mode. Press 2 for manual mode.");
         String command = br.readLine();
 
+        time = new HashMap<>();
+
         if (command.equals("1")) {
             simulateUsers();
 
-            if (plain) runScheme ("plaintext", new plain_text());
-            if (md5) runScheme ("md5", new md5());
+            if (plain) time.put("Plain Text", runScheme ("plaintext", new plain_text()));
+            if (md5) time.put("MD5", runScheme ("md5", new md5()));
 
-            if (sha_224) runScheme ("sha_224", new SHA_224());
+            if (sha_224) time.put("SHA 224", runScheme ("sha_224", new SHA_224()));
 
-            if (sha_3) runScheme ("sha_3", new SHA_3());
-            if (b_crypt) runScheme ("B-CRYPT", new bcrypt());
-            if (newScheme)  runScheme ("New Scheme", new newScheme());
+            if (sha_3) time.put("SHA 3", runScheme ("sha_3", new SHA_3()));
+            if (b_crypt) time.put("BCRYPT", runScheme ("B-CRYPT", new bcrypt()));
+            if (newScheme)  time.put("New Scheme", runScheme ("New Scheme", new newScheme()));
 
-            if(aes256)  runScheme("aes256", new AES256());
+            if(aes256)  time.put("AES 256", runScheme("aes256", new AES256()));
+            if(polyPassword)  time.put("PolyPasswordHasher", runScheme("aes256", new PolyPasswordHasher("pph.properties")));
+
+            launch(args);
 
             //if (sequence_hash) seqHash();
         } else if (command.equals(("2"))) {
@@ -112,38 +168,41 @@ public class Main {
 
     }
 
-    private static void runScheme(String name, SchemeInterface sc){
+    private static double[] runScheme(String name, SchemeInterface sc) throws Exception {
         System.out.print(name);
+        double[] duration = new double[2];
         if (register) {
             long startTime = System.nanoTime();
             for (int i = 0; i < noUsers; i++)
                 sc.register(usernames[i], passwords[i]);
             System.out.print(" - Registration Completed");
             long endTime = System.nanoTime();
-            long duration =  ((endTime - startTime)/(1000000));
-            writeTime(name + " - register", duration);
+            duration[0] = (double) ((endTime - startTime)/(1000000));
+            writeTime(name + " - register", duration[0]);
         }
 
         if (login) {
             long startTime = System.nanoTime();
             for (int i = 0; i < noUsers; i++)
-                System.out.print(" " + sc.login(usernames[i], passwords[i]));
+               sc.login(usernames[i], passwords[i]);
             System.out.print(" - Login Completed");
             long endTime = System.nanoTime();
-            long duration =  ((endTime - startTime)/(1000000));
-            writeTime(name + " - login", duration);
+            duration[1] = (double) ((endTime - startTime)/(1000000));
+            writeTime(name + " - login", duration[1]);
         }
         System.out.println("");
+        return duration;
     }
 
-    static void writeTime(String name, long time) {
-        try(FileWriter fw = new FileWriter("time.txt", true);
+    static void writeTime(String name, double time) {
+       /* try(FileWriter fw = new FileWriter("time.txt", true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw))
         {
             out.println(name);
             out.println(time + " ms");
         } catch (IOException e) {
-        }
+        }*/
+
     }
 }

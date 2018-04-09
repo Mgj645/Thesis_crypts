@@ -19,12 +19,16 @@ public class newScheme implements SchemeInterface {
 
     private final static String fileName = "newSchemeUsers.txt";
     private final static String fileUserNames = "newSchemeUserNames.txt";
+    private final static String chipheredDB = "cipherdb.txt";
+    private final static String KEYfile = "KEY.txt";
 
-    private static String sha1key = "CHUCK";
+
+    private static String sha1key;
+    private final static String sep = "|%";
     private final static String aeskey = "15TYZfKX037oEaAerQL5ODcSrK6Ggfou";
 
     private int count;
-    private final static int finalcount = 1;
+    private final static int finalcount = 10000;
 
     private ArrayList<ArrayList<String>> log;
     private AES256 aes;
@@ -40,6 +44,10 @@ public class newScheme implements SchemeInterface {
             sha1key = tmpk;*/
         users = (HashSet<String>) readData(fileName);
         usernames = (HashSet<String>) readData(fileUserNames);
+        cipherdb = (byte[]) readData(chipheredDB);
+        sha1key = (String) readData(KEYfile);
+        if(sha1key == null)
+            sha1key = "a";
 
         //readRedis();
         log = new ArrayList<ArrayList<String>>();
@@ -64,7 +72,7 @@ public class newScheme implements SchemeInterface {
 
     public boolean login(String username, String password) {
        // String trueuser = SHA_224.applyFunction(username);
-        String user = applyFunction(username+"|%%|", password);
+        String user = applyFunction(username, password);
         return users.contains(user);
     }
 
@@ -74,14 +82,16 @@ public class newScheme implements SchemeInterface {
         if (usernames.contains(username))
             return false;
         else {
-            String user = applyFunction(username+"|%%|", password);
+            String user = applyFunction(username, password);
             usernames.add(username);
             users.add(user);
 
-          /*  if(++count % finalcount == 0) {
+            if(++count % finalcount == 0) {
                 writeData(users, fileName);
                 writeData(usernames, fileUserNames);
-            }*/
+                writeData(cipherdb, chipheredDB);
+                writeData(sha1key, KEYfile);
+            }
 
             ArrayList<String> entry = new ArrayList<>() {{add("add");add(username);add(password);}};
             log.add(entry);
@@ -92,13 +102,13 @@ public class newScheme implements SchemeInterface {
 
     public boolean changePassword(String username, String password1, String password2) {
         //String trueuser = SHA_224.applyFunction(username);
-        String user = applyFunction(username+"|%%|", password1);
+        String user = applyFunction(username, password1);
 
         if (!users.contains(user))
             return false;
         else {
             users.remove(user);
-            String trueuser2 = applyFunction(username+"|%%|", password2);
+            String trueuser2 = applyFunction(username, password2);
             users.add(trueuser2);
 
             writeData(users, fileName);
@@ -112,12 +122,12 @@ public class newScheme implements SchemeInterface {
 
     public boolean changeUsername(String username1, String username2, String password) {
         //String trueusername1 = SHA_224.applyFunction(username1);
-        String trueuser1 = applyFunction(username1+"|%%|", password);
+        String trueuser1 = applyFunction(username1, password);
         if (!users.contains(trueuser1))
             return false;
         else {
             String trueusername2 = SHA_224.applyFunction(username2);
-            String trueuser2 = applyFunction(username2+"|%%|", password);
+            String trueuser2 = applyFunction(username2, password);
 
             users.remove(trueuser1);
             users.add(trueuser2);
@@ -137,7 +147,7 @@ public class newScheme implements SchemeInterface {
 
     public boolean deleteUser(String username, String password) {
         //String trueusername = SHA_224.applyFunction(username);
-        String trueuser = applyFunction(username+"|%%|", password);
+        String trueuser = applyFunction(username, password);
         if (!users.contains(trueuser))
             return false;
         else {
@@ -157,7 +167,7 @@ public class newScheme implements SchemeInterface {
     public String applyFunction(String username, String password) {
         String user = null;
         try {
-            user = calculateRFC2104HMAC(username + password, sha1key);
+            user = calculateRFC2104HMAC(username + sep + password, sha1key);
         } catch (SignatureException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -210,21 +220,24 @@ public class newScheme implements SchemeInterface {
     }
 
 
-    private Object readData(String fileName) {
+    private Object readData(String file) {
         InputStream fileIs = null;
         ObjectInputStream objIs = null;
         Object users;
         try {
-            fileIs = new FileInputStream(fileName);
+            fileIs = new FileInputStream(file);
             objIs = new ObjectInputStream(fileIs);
             users = objIs.readObject();
             //System.out.println("");
             //System.out.println(Collections.singletonList(users)); // method 2
             return users;
         } catch (FileNotFoundException e) {
-            users = new HashSet<String>();
 
-            return users;
+            if(file.equals(fileUserNames) || file.equals(fileName))
+            return new HashSet<String>();
+                else
+                    return null;
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -283,6 +296,8 @@ public class newScheme implements SchemeInterface {
     }
 
     private void changeKey(){
+        long startTime = System.nanoTime();
+
         sha1key = UUID.randomUUID().toString();
         users = new HashSet<>();
         try {
@@ -290,18 +305,22 @@ public class newScheme implements SchemeInterface {
                 Iterator it = db.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry)it.next();
-                    String user = applyFunction(  pair.getKey()+"|%%|", (String) pair.getValue());
+                    String user = applyFunction(  (String) pair.getKey(), (String) pair.getValue());
                     users.add(user);
                     it.remove();
                 }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); 
         }
 
-        System.out.println("Changed hash set with key " + sha1key);
-        writeData(users, fileName);
-        writeData(usernames, fileUserNames);
+        long endTime = System.nanoTime();
+        System.out.println("Changed hash set with key " + sha1key + " and it took " + (int) ((endTime - startTime)/(1000000)) + " ms!");
+
+       writeData(users, fileName);
+       writeData(usernames, fileUserNames);
+        writeData(cipherdb, chipheredDB);
+        writeData(sha1key, KEYfile);
         //jedis.set("key", sha1key);
         //writeRedis();
     }

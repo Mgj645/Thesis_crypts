@@ -14,6 +14,8 @@ public class SHA_3 extends Scheme implements SchemeInterface{
     }
 
     public boolean login(String username, String password){
+        username = applyFunction(username);
+
         if(!users.containsKey(username))
             return false;
         else
@@ -22,6 +24,8 @@ public class SHA_3 extends Scheme implements SchemeInterface{
 
 
     public boolean register(String username, String password){
+        username = applyFunction(username);
+
         if(users.containsKey(username))
             return false;
         else {

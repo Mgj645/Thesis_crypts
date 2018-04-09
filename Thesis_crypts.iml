@@ -40,7 +40,16 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Desktop/redis/jedis-2.9.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/../jedis-2.9.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../jedis-2.9.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

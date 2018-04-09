@@ -7,7 +7,7 @@ public class Scheme {
     OutputStream ops = null;
     ObjectOutputStream objOps = null;
     int count;
-    final static int finalcount = 299;
+    final static int finalcount = 10000;
 
     void writeData(Object users, String fileName) {
         if(++count % finalcount == 0) {
