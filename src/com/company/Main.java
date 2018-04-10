@@ -1,6 +1,5 @@
 package com.company;
 
-import com.company.poly.edu.nyu.poly.pph.PolyPasswordHasher;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
@@ -9,49 +8,16 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 public class Main extends Application  {
 
-        @Override public void start(Stage stage) {
-            stage.setTitle("Bar Chart Sample");
-            final NumberAxis xAxis = new NumberAxis();
-            final CategoryAxis yAxis = new CategoryAxis();
-            final BarChart<Number,String> bc =
-                    new BarChart<Number,String>(xAxis,yAxis);
-            bc.setTitle(noUsers + " entradas");
-            xAxis.setLabel("Tempo em ms");
-            xAxis.setTickLabelRotation(90);
-            yAxis.setLabel("Esquema");
-
-            XYChart.Series series1 = new XYChart.Series();
-            series1.setName("Register Operations");
-            HashMap<String, double[]> time2 = new HashMap<>();
-            time2.putAll(time);
-            Iterator it = time.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry pair = (Map.Entry)it.next();
-                series1.getData().add(new XYChart.Data(((double[]) pair.getValue())[0], pair.getKey()));
-            }
-
-            XYChart.Series series2 = new XYChart.Series();
-            series2.setName("Login Operations");
-            it = time2.entrySet().iterator();
-
-            while (it.hasNext()) {
-                Map.Entry pair = (Map.Entry)it.next();
-                series2.getData().add(new XYChart.Data(((double[]) pair.getValue())[1], pair.getKey()));
-            }
-;
-
-            Scene scene  = new Scene(bc,800,600);
-            bc.getData().addAll(series1, series2);
-            stage.setScene(scene);
-            stage.show();
-        }
 
     static String[] passwords;
     static String[] usernames;
@@ -65,7 +31,7 @@ public class Main extends Application  {
     final static boolean aes256 = false;
 
     final static boolean newScheme = true;
-    final static boolean polyPassword = false;
+    final static boolean polyPassword = true;
 
     final static boolean sequence_hash = false;
 
@@ -94,7 +60,7 @@ public class Main extends Application  {
             if (newScheme)  time.put("New Scheme", runScheme ("New Scheme", new newScheme()));
 
             if(aes256)  time.put("AES 256", runScheme("aes256", new AES256()));
-            if(polyPassword)  time.put("PolyPasswordHasher", runScheme("aes256", new PolyPasswordHasher("pph.properties")));
+            if(polyPassword)  time.put("PolyPasswordHasher", runScheme("PolyHash", new PolyFace()));
 
             launch(args);
 
@@ -205,4 +171,42 @@ public class Main extends Application  {
         }*/
 
     }
+
+    @Override public void start(Stage stage) {
+        stage.setTitle("Bar Chart Sample");
+        final NumberAxis xAxis = new NumberAxis();
+        final CategoryAxis yAxis = new CategoryAxis();
+        final BarChart<Number,String> bc =
+                new BarChart<Number,String>(xAxis,yAxis);
+        bc.setTitle(noUsers + " entradas");
+        xAxis.setLabel("Tempo em ms");
+        xAxis.setTickLabelRotation(90);
+        yAxis.setLabel("Esquema");
+
+        XYChart.Series series1 = new XYChart.Series();
+        series1.setName("Register Operations");
+        HashMap<String, double[]> time2 = new HashMap<>();
+        time2.putAll(time);
+        Iterator it = time.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            series1.getData().add(new XYChart.Data(((double[]) pair.getValue())[0], pair.getKey()));
+        }
+
+        XYChart.Series series2 = new XYChart.Series();
+        series2.setName("Login Operations");
+        it = time2.entrySet().iterator();
+
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            series2.getData().add(new XYChart.Data(((double[]) pair.getValue())[1], pair.getKey()));
+        }
+        ;
+
+        Scene scene  = new Scene(bc,800,600);
+        bc.getData().addAll(series1, series2);
+        stage.setScene(scene);
+        stage.show();
+    }
+
 }
