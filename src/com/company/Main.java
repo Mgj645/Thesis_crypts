@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.newScheme.*;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
@@ -27,11 +29,15 @@ public class Main extends Application  {
     final static boolean sha_224 = true;
     final static boolean sha_3 = true;
     final static boolean b_crypt = false;
-
     final static boolean aes256 = false;
-
-    final static boolean newScheme = true;
     final static boolean polyPassword = true;
+
+    final static boolean newSchemeV0 = true;
+    final static boolean newSchemeV1 = true;
+    final static boolean newSchemeV2 = true;
+    final static boolean newScheme = true;
+
+
 
     final static boolean sequence_hash = false;
 
@@ -49,19 +55,41 @@ public class Main extends Application  {
 
         if (command.equals("1")) {
             simulateUsers();
+            Thread.sleep(1500);
 
             if (plain) time.put("Plain Text", runScheme ("plaintext", new plain_text()));
+            Thread.sleep(1500);
+
             if (md5) time.put("MD5", runScheme ("md5", new md5()));
+            Thread.sleep(1500);
 
             if (sha_224) time.put("SHA 224", runScheme ("sha_224", new SHA_224()));
+            Thread.sleep(1500);
 
             if (sha_3) time.put("SHA 3", runScheme ("sha_3", new SHA_3()));
+            Thread.sleep(1500);
+
             if (b_crypt) time.put("BCRYPT", runScheme ("B-CRYPT", new bcrypt()));
-            if (newScheme)  time.put("New Scheme", runScheme ("New Scheme", new newScheme()));
+            Thread.sleep(1500);
 
             if(aes256)  time.put("AES 256", runScheme("aes256", new AES256()));
-            if(polyPassword)  time.put("PolyPasswordHasher", runScheme("PolyHash", new PolyFace()));
+            Thread.sleep(1500);
 
+            if(polyPassword)  time.put("PolyPasswordHasher", runScheme("PolyHash", new PolyFace()));
+            Thread.sleep(1500);
+
+
+            if (newSchemeV0)  time.put("New Scheme V0", runScheme ("New Scheme V0", new newSchemeV0()));
+            Thread.sleep(1500);
+
+            if (newSchemeV1)  time.put("New Scheme V1", runScheme ("New Scheme V1", new newSchemeV1()));
+            Thread.sleep(1500);
+
+            if (newSchemeV2)  time.put("New Scheme V2", runScheme ("New Scheme V2", new newSchemeV2()));
+            Thread.sleep(1500);
+
+            if (newScheme)  time.put("New Scheme", runScheme ("New Scheme", new newScheme()));
+            Thread.sleep(1500);
             launch(args);
 
             //if (sequence_hash) seqHash();
@@ -146,6 +174,7 @@ public class Main extends Application  {
             duration[0] = (double) ((endTime - startTime)/(1000000));
             writeTime(name + " - register", duration[0]);
         }
+        Thread.sleep(1500);
 
         if (login) {
             long startTime = System.nanoTime();

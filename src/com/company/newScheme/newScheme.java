@@ -1,6 +1,10 @@
-package com.company;
+package com.company.newScheme;
 
-import redis.clients.jedis.Jedis;
+//import redis.clients.jedis.Jedis;
+
+import com.company.AES256;
+import com.company.SHA_224;
+import com.company.SchemeInterface;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -33,7 +37,7 @@ public class newScheme implements SchemeInterface {
     private ArrayList<ArrayList<String>> log;
     private AES256 aes;
     private byte[] cipherdb;
-    private Jedis jedis;
+    //private Jedis jedis;
     public newScheme() {
         count = 0;
        // jedis = new Jedis();
@@ -356,12 +360,12 @@ public class newScheme implements SchemeInterface {
     }
 
     private void writeRedis(){
-        jedis.set("users", users.toString());
-        jedis.set("usernames", usernames.toString());
-        jedis.set("ciphered", cipherdb.toString());
+        //jedis.set("users", users.toString());
+        //jedis.set("usernames", usernames.toString());
+        //jedis.set("ciphered", cipherdb.toString());
     }
 
-    private void readRedis(){
+    /*private void readRedis(){
         String userstmp = jedis.get("users");
         if(userstmp == null || userstmp.equals("")) {
             users = new HashSet<>();
@@ -370,16 +374,16 @@ public class newScheme implements SchemeInterface {
         }
         else {
             users = string2set(userstmp);
-            usernames = string2set(jedis.get("usernames"));
-            cipherdb = jedis.get("ciphered").getBytes();
+            //usernames = string2set(jedis.get("usernames"));
+           // cipherdb = jedis.get("ciphered").getBytes();
         }
 
-    }
+    }*/
 
     private void delRedis(){
-        jedis.del("users");
-        jedis.del("usernames");
-        jedis.del("ciphered");
-        jedis.del("key");
+       // jedis.del("users");
+       // jedis.del("usernames");
+       // jedis.del("ciphered");
+       // jedis.del("key");
     }
 }
