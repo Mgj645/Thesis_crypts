@@ -32,7 +32,7 @@ public class newScheme implements SchemeInterface {
     private final static String aeskey = "15TYZfKX037oEaAerQL5ODcSrK6Ggfou";
 
     private int count;
-    private final static int finalcount = 10000;
+    private final static int finalcount = 1000000;
 
     private ArrayList<ArrayList<String>> log;
     private AES256 aes;
@@ -57,7 +57,7 @@ public class newScheme implements SchemeInterface {
         log = new ArrayList<ArrayList<String>>();
         aes = new AES256();
 
-        new Thread(() -> {
+      /*  new Thread(() -> {
             try {
                 while(2+2==4) {
                     Thread.sleep(20000);
@@ -68,7 +68,7 @@ public class newScheme implements SchemeInterface {
                 e.printStackTrace();
             }
         }).start();
-
+*/
     }
 
 
@@ -261,10 +261,9 @@ public class newScheme implements SchemeInterface {
             HashMap<String, String> dbpw;
             if (cipherdb != null) {
                 //decipher old ciphered db and put it in String
-                String db = aes.decipher(cipherdb, generateKeyFromString(aeskey));
 
                 //String to Map
-                dbpw = string2map(db);
+                dbpw = aes.decipher(cipherdb, aeskey);
             }
             else
                 dbpw = new HashMap<>();
@@ -292,7 +291,7 @@ public class newScheme implements SchemeInterface {
             log = new ArrayList<>();
 
             //encrypt that bitch back
-            cipherdb = aes.cipher(dbpw, generateKeyFromString(aeskey));
+            cipherdb = aes.cipher(dbpw, aeskey);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -305,7 +304,7 @@ public class newScheme implements SchemeInterface {
         sha1key = UUID.randomUUID().toString();
         users = new HashSet<>();
         try {
-                HashMap<String, String> db = string2map(aes.decipher(cipherdb, generateKeyFromString(aeskey)));
+                HashMap<String, String> db = aes.decipher(cipherdb, aeskey);
                 Iterator it = db.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry)it.next();

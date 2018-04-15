@@ -1,14 +1,12 @@
 package com.company;
 
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.StringReader;
-import java.security.AlgorithmParameters;
 import java.security.Key;
-import java.util.Base64;
+import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -21,17 +19,15 @@ public class AES256 extends Scheme implements SchemeInterface {
 
 
     public AES256(){
-        try {
-            cipheredUsers = cipher((HashMap<String, String>) readData(fileName),generateKeyFromString(key1));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+            cipheredUsers = null;
+
     }
 
     @Override
     public boolean login(String username, String password) {
         try {
-            HashMap<String, String> users = string2map(decipher(cipheredUsers, generateKeyFromString(key1)));
+            HashMap<String, String> users = decipher(cipheredUsers, key1);
             if(!users.containsKey(username))
                 return false;
             else
@@ -45,13 +41,13 @@ public class AES256 extends Scheme implements SchemeInterface {
     @Override
     public boolean register(String username, String password) {
         try {
-            HashMap<String, String> users = string2map(decipher(cipheredUsers, generateKeyFromString(key1)));
+            HashMap<String, String> users = decipher(cipheredUsers, key1);
             if(users.containsKey(username))
                 return false;
             else
             {
                 users.put(username, password);
-                cipheredUsers = cipher(users, generateKeyFromString(key1));
+                cipheredUsers = cipher(users, key1);
                 return true;
             }
         } catch (Exception e) {
@@ -63,13 +59,13 @@ public class AES256 extends Scheme implements SchemeInterface {
     @Override
     public boolean changePassword(String username, String password1, String password2) {
         try {
-            HashMap<String, String> users = string2map(decipher(cipheredUsers, generateKeyFromString(key1)));
+            HashMap<String, String> users = decipher(cipheredUsers, key1);
             if(!users.containsKey(username))
                 return false;
             else
             {
                 users.replace(username, password1, password2);
-                cipheredUsers = cipher(users, generateKeyFromString(key1));
+                cipheredUsers = cipher(users, key1);
                 return true;
             }
         } catch (Exception e) {
@@ -82,14 +78,14 @@ public class AES256 extends Scheme implements SchemeInterface {
     @Override
     public boolean changeUsername(String username1, String username2, String password) {
         try {
-            HashMap<String, String> users = string2map(decipher(cipheredUsers, generateKeyFromString(key1)));
+            HashMap<String, String> users = decipher(cipheredUsers, key1);
             if(!users.containsKey(username1))
                 return false;
             else
             {
                 users.remove(username1, password);
                 users.put(username2, password);
-                cipheredUsers = cipher(users, generateKeyFromString(key1));
+                cipheredUsers = cipher(users, key1);
                 return true;
             }
         } catch (Exception e) {
@@ -103,13 +99,13 @@ public class AES256 extends Scheme implements SchemeInterface {
     @Override
     public boolean deleteUser(String username, String password) {
         try {
-            HashMap<String, String> users = string2map(decipher(cipheredUsers, generateKeyFromString(key1)));
+            HashMap<String, String> users = decipher(cipheredUsers, key1);
             if(!users.containsKey(username))
                 return false;
             else
             {
                 users.remove(username, password);
-                cipheredUsers = cipher(users, generateKeyFromString(key1));
+                cipheredUsers = cipher(users, key1);
                 return true;
             }
         } catch (Exception e) {
@@ -119,54 +115,40 @@ public class AES256 extends Scheme implements SchemeInterface {
 
     }
 
-    static byte[] iv;
-    public static byte[] cipher(HashMap<String, String> a, Key key)  {
-        Cipher cipher;
+    static IvParameterSpec ivSpec;
 
-
+    static int ctLength;
+    public static byte[] cipher(HashMap<String, String> a, String k)  {
         try {
-            cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-
-        cipher.init(Cipher.ENCRYPT_MODE, key);
-        AlgorithmParameters params = cipher.getParameters();
-        iv = params.getParameterSpec(IvParameterSpec.class).getIV();
-        byte[] ciphertext = cipher.doFinal(a.toString().getBytes("UTF-8"));
-
-            return ciphertext;
-
-
+            byte[] keyBytes = k.getBytes();
+            Key key = new SecretKeySpec(keyBytes, "AES");
+            Cipher c = Cipher.getInstance("AES");
+            c.init(Cipher.ENCRYPT_MODE, key);
+            return c.doFinal(a.toString().getBytes());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-
     }
 
-    public static String decipher(byte[] ciphertext, Key key)  {
-        String plaintext = "null";
-        Cipher cipher = null;
-
-
+    public static HashMap<String, String>  decipher(byte[] ciphertext, String k)  {
+        if(ciphertext==null)
+            return new HashMap<>();
         try {
-
-            /* Decrypt the message, given derived key and initialization vector. */
-            cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(iv));
-            plaintext = new String(cipher.doFinal(ciphertext), "UTF-8");
+            byte[] keyBytes = k.getBytes();
+            Key key = new SecretKeySpec(keyBytes, "AES");
+            Cipher c = Cipher.getInstance("AES");
+            c.init(Cipher.DECRYPT_MODE, key);
+            byte[] decValue = c.doFinal(ciphertext);
+            String decryptedValue = new String(decValue);
+            return string2map(decryptedValue);
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return plaintext;
     }
 
-    private static Key generateKeyFromString(final String secKey) throws Exception {
-
-        byte[] decodedKey = Base64.getDecoder().decode(secKey);
-        SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-        return originalKey;
-    }
-
-    private HashMap<String, String> string2map(String db){
+    private static HashMap<String, String> string2map(String db){
         Properties props = new Properties();
         try {
             props.load(new StringReader(db.substring(1, db.length() - 1).replace(", ", "\n")));
@@ -181,4 +163,18 @@ public class AES256 extends Scheme implements SchemeInterface {
         return dbpw;
     }
 
+    public static String toHex(byte[] data, int length)
+    {
+        StringBuffer	buf = new StringBuffer();
+
+        for (int i = 0; i != length; i++)
+        {
+            int	v = data[i] & 0xff;
+
+            buf.append("0123456789abcdef".charAt(v >> 4));
+            buf.append("0123456789abcdef".charAt(v & 0xf));
+        }
+
+        return buf.toString();
+    }
 }

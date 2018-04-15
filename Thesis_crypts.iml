@@ -64,5 +64,20 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/jars/commons-codec-1.11" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="file://$MODULE_DIR$/jars/commons-codec-1.11/apidocs" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/jars/commons-codec-1.11" />
+        </SOURCES>
+        <jarDirectory url="file://$MODULE_DIR$/jars/commons-codec-1.11" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/jars/commons-codec-1.11" recursive="false" type="SOURCES" />
+      </library>
+    </orderEntry>
   </component>
 </module>

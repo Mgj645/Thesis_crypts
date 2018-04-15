@@ -4,10 +4,6 @@ import com.company.SchemeInterface;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-import java.util.Formatter;
 import java.util.HashSet;
 
 public class newSchemeV0 implements SchemeInterface {
@@ -57,33 +53,26 @@ public class newSchemeV0 implements SchemeInterface {
     public String applyFunction(String username, String password) {
         String user = null;
         try {
-            user = calculateRFC2104HMAC(username + sep + password, sha1key);
-        } catch (SignatureException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
+            SecretKeySpec key = new SecretKeySpec((sha1key).getBytes("UTF-8"), HMAC_SHA1_ALGORITHM);
+            Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+            mac.init(key);
+
+            byte[] bytes = mac.doFinal((username + sep + password).getBytes("ASCII"));
+
+            StringBuffer hash = new StringBuffer();
+            for (int i = 0; i < bytes.length; i++) {
+                String hex = Integer.toHexString(0xFF & bytes[i]);
+                if (hex.length() == 1) {
+                    hash.append('0');
+                }
+                hash.append(hex);
+            }
+            user = hash.toString();
+        } catch (Exception e){
             e.printStackTrace();
         }
+
         return user;
-    }
-
-    private static String toHexString(byte[] bytes) {
-        Formatter formatter = new Formatter();
-
-        for (byte b : bytes) {
-            formatter.format("%02x", b);
-        }
-
-        return formatter.toString();
-    }
-
-    private static String calculateRFC2104HMAC(String data, String key)
-            throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
-        SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(), HMAC_SHA1_ALGORITHM);
-        Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
-        mac.init(signingKey);
-        return toHexString(mac.doFinal(data.getBytes()));
     }
 
 }

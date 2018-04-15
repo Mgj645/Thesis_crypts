@@ -6,11 +6,9 @@ import com.company.AES256;
 import com.company.SchemeInterface;
 
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.*;
@@ -22,7 +20,7 @@ public class newSchemeV2 implements SchemeInterface {
 
     private static String sha1key;
     private final static String sep = "|%";
-    private final static String aeskey = "15TYZfKX037oEaAerQL5ODcSrK6Ggfou";
+    private final static String aeskey = "q4t7w!z%C*F-JaNd";
 
     private int count;
     private final static int finalcount = 10000;
@@ -30,7 +28,7 @@ public class newSchemeV2 implements SchemeInterface {
     private ArrayList<ArrayList<String>> log;
     private AES256 aes;
     private byte[] cipherdb;
-    //private Jedis jedis;
+
     public newSchemeV2() {
         count = 0;
 
@@ -40,8 +38,19 @@ public class newSchemeV2 implements SchemeInterface {
         sha1key = "a";
 
         //readRedis();
-        log = new ArrayList<ArrayList<String>>();
+        log = new ArrayList<>();
         aes = new AES256();
+        new Thread(() -> {
+            try {
+                while(2+2==4) {
+                    Thread.sleep(20000);
+                    dumpLog();
+                    changeKey();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
 
     }
 
@@ -53,7 +62,6 @@ public class newSchemeV2 implements SchemeInterface {
     }
 
     public boolean register(String username, String password) {
-       // String trueuser = SHA_224.applyFunction(username);
         if (!usernames.add(username))
             return false;
         else {
@@ -63,8 +71,6 @@ public class newSchemeV2 implements SchemeInterface {
     }
 
     public boolean changePassword(String username, String password1, String password2) {
-        //String trueuser = SHA_224.applyFunction(username);
-
         if (!users.remove(applyFunction(username, password1)))
             return false;
         else {
@@ -77,11 +83,10 @@ public class newSchemeV2 implements SchemeInterface {
         if (!users.remove(applyFunction(username1, password)))
             return false;
         else {
-            users.add(applyFunction(username2, password));
             usernames.remove(username1);
             usernames.add(username2);
             log.add(new ArrayList<>() {{add("cu");add(username1);add(username2);add(password);}});
-            return true;
+            return users.add(applyFunction(username2, password));
         }
     }
 
@@ -156,10 +161,9 @@ public class newSchemeV2 implements SchemeInterface {
             HashMap<String, String> dbpw;
             if (cipherdb != null) {
                 //decipher old ciphered db and put it in String
-                String db = aes.decipher(cipherdb, generateKeyFromString(aeskey));
+                dbpw = aes.decipher(cipherdb, aeskey);
 
                 //String to Map
-                dbpw = string2map(db);
             }
             else
                 dbpw = new HashMap<>();
@@ -187,7 +191,7 @@ public class newSchemeV2 implements SchemeInterface {
             log = new ArrayList<>();
 
             //encrypt that bitch back
-            cipherdb = aes.cipher(dbpw, generateKeyFromString(aeskey));
+            cipherdb = aes.cipher(dbpw, aeskey);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,7 +204,7 @@ public class newSchemeV2 implements SchemeInterface {
         sha1key = UUID.randomUUID().toString();
         users = new HashSet<>();
         try {
-                HashMap<String, String> db = string2map(aes.decipher(cipherdb, generateKeyFromString(aeskey)));
+                HashMap<String, String> db = aes.decipher(cipherdb, aeskey);
                 Iterator it = db.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry)it.next();
@@ -217,36 +221,5 @@ public class newSchemeV2 implements SchemeInterface {
         System.out.println("Changed hash set with key " + sha1key + " and it took " + (int) ((endTime - startTime)/(1000000)) + " ms!");
 
     }
-
-    private static Key generateKeyFromString(final String secKey) throws Exception {
-
-        byte[] decodedKey = Base64.getDecoder().decode(secKey);
-        SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-        return originalKey;
-    }
-
-    private HashMap<String, String> string2map(String db){
-        Properties props = new Properties();
-        try {
-            props.load(new StringReader(db.substring(1, db.length() - 1).replace(", ", "\n")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        HashMap<String, String> dbpw = new HashMap<>();
-        for (Map.Entry<Object, Object> e : props.entrySet()) {
-            dbpw.put((String)e.getKey(), (String)e.getValue());
-        }
-
-        return dbpw;
-    }
-
-    private HashSet<String> string2set(String db){
-        HashSet<String> myHashSet = new HashSet();  // Or a more realistic size
-        StringTokenizer st = new StringTokenizer(db, ",");
-        while(st.hasMoreTokens())
-            myHashSet.add(st.nextToken());
-        return myHashSet;
-    }
-
 
 }
