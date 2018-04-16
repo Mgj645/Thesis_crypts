@@ -12,6 +12,7 @@ public class newSchemeV0 implements SchemeInterface {
 
     private static String sha1key;
     private final static String sep = "|%";
+    private final static int finalcount = 10000;
 
     public newSchemeV0() {
         users = new HashSet<String>();
@@ -26,7 +27,8 @@ public class newSchemeV0 implements SchemeInterface {
     }
 
     public boolean register(String username, String password) {
-            return users.add(applyFunction(username, password));
+
+        return users.add(applyFunction(username, password));
         }
 
 
@@ -74,5 +76,6 @@ public class newSchemeV0 implements SchemeInterface {
 
         return user;
     }
+
 
 }

@@ -2,21 +2,19 @@ package com.company.newScheme;
 
 //import redis.clients.jedis.Jedis;
 
-import com.company.AES256;
+import com.company.AES;
 import com.company.SHA_224;
 import com.company.SchemeInterface;
 
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.util.*;
 
-public class newScheme implements SchemeInterface {
+public class newSchemeOLD implements SchemeInterface {
 
     private HashSet<String> users;
     private HashSet<String> usernames;
@@ -35,10 +33,10 @@ public class newScheme implements SchemeInterface {
     private final static int finalcount = 1000000;
 
     private ArrayList<ArrayList<String>> log;
-    private AES256 aes;
+    private AES aes;
     private byte[] cipherdb;
     //private Jedis jedis;
-    public newScheme() {
+    public newSchemeOLD() {
         count = 0;
        // jedis = new Jedis();
         /*String tmpk = jedis.get("key");
@@ -55,7 +53,7 @@ public class newScheme implements SchemeInterface {
 
         //readRedis();
         log = new ArrayList<ArrayList<String>>();
-        aes = new AES256();
+        aes = new AES();
 
       /*  new Thread(() -> {
             try {
@@ -223,7 +221,6 @@ public class newScheme implements SchemeInterface {
         }
     }
 
-
     private Object readData(String file) {
         InputStream fileIs = null;
         ObjectInputStream objIs = null;
@@ -259,12 +256,8 @@ public class newScheme implements SchemeInterface {
     private void dumpLog(){
         try {
             HashMap<String, String> dbpw;
-            if (cipherdb != null) {
-                //decipher old ciphered db and put it in String
-
-                //String to Map
+            if (cipherdb != null)
                 dbpw = aes.decipher(cipherdb, aeskey);
-            }
             else
                 dbpw = new HashMap<>();
 
@@ -326,36 +319,6 @@ public class newScheme implements SchemeInterface {
         writeData(sha1key, KEYfile);
         //jedis.set("key", sha1key);
         //writeRedis();
-    }
-
-    private static Key generateKeyFromString(final String secKey) throws Exception {
-
-        byte[] decodedKey = Base64.getDecoder().decode(secKey);
-        SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
-        return originalKey;
-    }
-
-    private HashMap<String, String> string2map(String db){
-        Properties props = new Properties();
-        try {
-            props.load(new StringReader(db.substring(1, db.length() - 1).replace(", ", "\n")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        HashMap<String, String> dbpw = new HashMap<>();
-        for (Map.Entry<Object, Object> e : props.entrySet()) {
-            dbpw.put((String)e.getKey(), (String)e.getValue());
-        }
-
-        return dbpw;
-    }
-
-    private HashSet<String> string2set(String db){
-        HashSet<String> myHashSet = new HashSet();  // Or a more realistic size
-        StringTokenizer st = new StringTokenizer(db, ",");
-        while(st.hasMoreTokens())
-            myHashSet.add(st.nextToken());
-        return myHashSet;
     }
 
     private void writeRedis(){

@@ -1,8 +1,6 @@
 package com.company;
 
-import com.company.newScheme.newSchemeV0;
-import com.company.newScheme.newSchemeV1;
-import com.company.newScheme.newSchemeV2;
+import com.company.newScheme.*;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
@@ -34,8 +32,13 @@ public class Main extends Application  {
     final static boolean polyPassword = false;
 
     final static boolean newSchemeV0 = true;
-    final static boolean newSchemeV1 = true;
+    final static boolean newSchemeV1 = false;
     final static boolean newSchemeV2 = true;
+    final static boolean newSchemeV1shaMD5 = false;
+    final static boolean newSchemeV1sha256 = false;
+    final static boolean newSchemeV1sha3 = false;
+    final static boolean newSchemeV1sha224 = false;
+
     final static boolean newScheme = true;
     final static boolean newSchemeDES = true;
 
@@ -43,7 +46,7 @@ public class Main extends Application  {
 
     final static boolean sequence_hash = false;
 
-    final static int noUsers = 100000;
+    final static int noUsers = 50;
 
     final static boolean register = true;
     final static boolean login = true;
@@ -57,12 +60,20 @@ public class Main extends Application  {
 
         if (command.equals("1")) {
             simulateUsers();
+            Thread.sleep(2000);
+            if (newSchemeV0)  time.put("V0", runScheme ("V0", new newSchemeV0()));
 
-            if (newSchemeV0)  time.put("New Scheme V0", runScheme ("New Scheme V0", new newSchemeV0()));
+            if (newSchemeV1)  time.put("V1", runScheme ("V1", new newSchemeV1()));
 
-            if (newSchemeV1)  time.put("New Scheme V1", runScheme ("New Scheme V1", new newSchemeV1()));
+            if (newSchemeV2)  time.put("V2", runScheme ("V2", new newSchemeV2()));
 
-            if (newSchemeV2)  time.put("New Scheme V2", runScheme ("New Scheme V2", new newSchemeV2()));
+            if (newSchemeV1shaMD5)  time.put("V1 HMAC md5", runScheme ("HMAC V1 md5", new newSchemeV1SHAMD5()));
+
+            if (newSchemeV1sha256)  time.put("HMAC V1 sha 256", runScheme ("HMAC V1 sha256", new newSchemeV1sha256()));
+
+            if (newSchemeV1sha3)  time.put("V1 sha3 ", runScheme ("V1 sha3", new newSchemeV1sha3()));
+
+            if (newSchemeV1sha224)  time.put("V1 sha224", runScheme ("V1 sha224", new newSchemeV1sha224()));
 
             if (plain) time.put("Plain Text", runScheme ("plaintext", new plain_text()));
 
@@ -74,7 +85,7 @@ public class Main extends Application  {
 
             if (b_crypt) time.put("BCRYPT", runScheme ("B-CRYPT", new bcrypt()));
 
-            if(aes256)  time.put("AES 256", runScheme("aes256", new AES256()));
+            if(aes256)  time.put("AES 256", runScheme("aes256", new AES()));
 
             if(polyPassword)  time.put("PolyPasswordHasher", runScheme("PolyHash", new PolyFace()));
 
@@ -160,7 +171,6 @@ public class Main extends Application  {
             System.out.print(" - Registration Completed");
             long endTime = System.nanoTime();
             duration[0] = (double) ((endTime - startTime)/(1000000));
-            writeTime(name + " - register", duration[0]);
         }
         Thread.sleep(1500);
 
@@ -171,22 +181,9 @@ public class Main extends Application  {
             System.out.print(" - Login Completed");
             long endTime = System.nanoTime();
             duration[1] = (double) ((endTime - startTime)/(1000000));
-            writeTime(name + " - login", duration[1]);
         }
         System.out.println("");
         return duration;
-    }
-
-    static void writeTime(String name, double time) {
-       /* try(FileWriter fw = new FileWriter("time.txt", true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            PrintWriter out = new PrintWriter(bw))
-        {
-            out.println(name);
-            out.println(time + " ms");
-        } catch (IOException e) {
-        }*/
-
     }
 
     @Override public void start(Stage stage) {

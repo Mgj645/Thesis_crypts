@@ -12,13 +12,13 @@ import java.util.Map;
 import java.util.Properties;
 
 //import android.util.Base64;
-public class AES256 extends Scheme implements SchemeInterface {
-    final static String fileName = "AES256.txt";
+public class AES extends Scheme implements SchemeInterface {
+    final static String fileName = "AES.txt";
     final static String key1 = "DXeBGoKOLzydaiHtIG7qCdVkLo5cd7se";
     private byte[] cipheredUsers;
 
 
-    public AES256(){
+    public AES(){
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
             cipheredUsers = null;
 
