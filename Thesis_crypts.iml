@@ -8,15 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/bcprov-jdk15on-1.59.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="JUnit5.0">
         <CLASSES>
           <root url="jar://$MAVEN_REPOSITORY$/org/junit/jupiter/junit-jupiter-api/5.0.0/junit-jupiter-api-5.0.0.jar!/" />
@@ -31,7 +22,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/commons-codec-1.11.jar!/" />
+          <root url="jar://$MODULE_DIR$/jars/PPH.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -40,7 +31,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../jedis-2.9.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/jars/commons-codec-1.11.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -49,34 +40,10 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../jedis-2.9.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/jars/bcprov-jdk15on-1.59.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/PPH.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/jars/commons-codec-1.11" />
-        </CLASSES>
-        <JAVADOC>
-          <root url="file://$MODULE_DIR$/jars/commons-codec-1.11/apidocs" />
-        </JAVADOC>
-        <SOURCES>
-          <root url="file://$MODULE_DIR$/jars/commons-codec-1.11" />
-        </SOURCES>
-        <jarDirectory url="file://$MODULE_DIR$/jars/commons-codec-1.11" recursive="false" />
-        <jarDirectory url="file://$MODULE_DIR$/jars/commons-codec-1.11" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
   </component>
