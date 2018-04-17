@@ -22,10 +22,7 @@ public class newSchemeV1sha224 implements SchemeInterface {
         users = new HashSet<String>();
         usernames = new HashSet<String>();
 
-        if(sha1key == null)
-            sha1key = "a";
-        //readRedis();
-
+        sha1key = "a";
     }
 
 
@@ -36,7 +33,9 @@ public class newSchemeV1sha224 implements SchemeInterface {
     public boolean register(String username, String password) {
         if (!usernames.add(username))
             return false;
-        else return users.add(applyFunction(username, password));
+        else {
+            usernames.add(username);
+            return users.add(applyFunction(username, password));}
     }
 
     public boolean changePassword(String username, String password1, String password2) {

@@ -33,7 +33,13 @@ public class Main extends Application  {
 
     final static boolean newSchemeV0 = true;
     final static boolean newSchemeV1 = false;
-    final static boolean newSchemeV2 = true;
+    final static boolean newSchemeV2 = false;
+    final static boolean newSchemeV3 = false;
+    final static boolean newSchemeV4 = true;
+    final static boolean newSchemeV4redis = true;
+
+
+
     final static boolean newSchemeV1shaMD5 = false;
     final static boolean newSchemeV1sha256 = false;
     final static boolean newSchemeV1sha3 = false;
@@ -46,7 +52,7 @@ public class Main extends Application  {
 
     final static boolean sequence_hash = false;
 
-    final static int noUsers = 50;
+    final static int noUsers = 100000;
 
     final static boolean register = true;
     final static boolean login = true;
@@ -67,11 +73,17 @@ public class Main extends Application  {
 
             if (newSchemeV2)  time.put("V2", runScheme ("V2", new newSchemeV2()));
 
+            if (newSchemeV3)  time.put("V3", runScheme ("V3", new newSchemeV3()));
+
+            if (newSchemeV4)  time.put("V4", runScheme ("V4", new newSchemeV4()));
+
+            if (newSchemeV4redis)  time.put("V4R", runScheme ("V4R", new newSchemeV4redis()));
+
             if (newSchemeV1shaMD5)  time.put("V1 HMAC md5", runScheme ("HMAC V1 md5", new newSchemeV1SHAMD5()));
 
             if (newSchemeV1sha256)  time.put("HMAC V1 sha 256", runScheme ("HMAC V1 sha256", new newSchemeV1sha256()));
 
-            if (newSchemeV1sha3)  time.put("V1 sha3 ", runScheme ("V1 sha3", new newSchemeV1sha3()));
+            //if (newSchemeV1sha3)  time.put("V1 sha3 ", runScheme ("V1 sha3", new newSchemeV1sha3()));
 
             if (newSchemeV1sha224)  time.put("V1 sha224", runScheme ("V1 sha224", new newSchemeV1sha224()));
 
@@ -93,7 +105,7 @@ public class Main extends Application  {
 
             //if (sequence_hash) seqHash();
         } else if (command.equals(("2"))) {
-            newSchemeV1 NS = new newSchemeV1();
+            com.company.newScheme.newSchemeV4redis NS = new newSchemeV4redis();
             System.out.println("Welcome to the new scheme");
             while (true) {
                 System.out.println("Choose your operation");
@@ -164,6 +176,8 @@ public class Main extends Application  {
     private static double[] runScheme(String name, SchemeInterface sc) throws Exception {
         System.out.print(name);
         double[] duration = new double[2];
+        int wrong = 0; int right = 0;
+
         if (register) {
             long startTime = System.nanoTime();
             for (int i = 0; i < noUsers; i++)
@@ -176,11 +190,16 @@ public class Main extends Application  {
 
         if (login) {
             long startTime = System.nanoTime();
-            for (int i = 0; i < noUsers; i++)
-               sc.login(usernames[i], passwords[i]);
-            System.out.print(" - Login Completed");
+            for (int i = 0; i < noUsers; i++) {
+                if(sc.login(usernames[i], passwords[i]))
+                    right++;
+                else
+                    wrong++;
+            }
+            System.out.print(" - Login Completed " + right + " sucessful, " + wrong + " not!" );
             long endTime = System.nanoTime();
             duration[1] = (double) ((endTime - startTime)/(1000000));
+
         }
         System.out.println("");
         return duration;

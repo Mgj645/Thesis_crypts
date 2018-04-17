@@ -44,21 +44,7 @@ public class newSchemeV1sha256 implements SchemeInterface {
 
         if(sha1key == null)
             sha1key = "a";
-        //readRedis();
-        log = new ArrayList<>();
-        aes = new AES();
-       /*  new Thread(() -> {
-            try {
-                while(2+2==4) {
-                    Thread.sleep(20000);
-                    dumpLog();
-                    changeKey();
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        */
+
     }
 
 
@@ -72,23 +58,8 @@ public class newSchemeV1sha256 implements SchemeInterface {
         if (!usernames.add(username))
             return false;
         else {
-            if (users.add(applyFunction(username, password))) {
-                log.add(new ArrayList<>() {{
-                    add("add");
-                    add(username);
-                    add(password);
-                }});
-                if (++count % finalcount == 0) {
-                    writeData(users, fileName);
-                    writeData(usernames, fileUserNames);
-                    writeData(cipherdb, chipheredDB);
-                    writeData(sha1key, KEYfile);
-                }
-                return true;
-            } else {
-                return false;
-            }
-        }
+            usernames.add(username);
+            return users.add(applyFunction(username, password));}
     }
 
     public boolean changePassword(String username, String password1, String password2) {
@@ -201,70 +172,5 @@ public class newSchemeV1sha256 implements SchemeInterface {
     }
 
 
-    private void dumpLog(){
-        try {
-            HashMap<String, String> dbpw;
-            if (cipherdb != null) {
-                //decipher old ciphered db and put it in String
-                dbpw = aes.decipher(cipherdb, aeskey);
-
-                //String to Map
-            }
-            else
-                dbpw = new HashMap<>();
-
-            //update the hashmap according to the log
-            for(ArrayList<String> entry : log){
-                switch(entry.get(0)){
-                    case "add":
-                        dbpw.put(entry.get(1), entry.get(2));
-                        break;
-                    case "cp":
-                        dbpw.replace(entry.get(1), entry.get(3));
-                        break;
-                    case "cu":
-                        dbpw.remove(entry.get(1));
-                        dbpw.put(entry.get(2), entry.get(3));
-                        break;
-                    case "del":
-                        dbpw.remove(entry.get(1));
-                        break;
-                    default: System.out.println("Something went terribly wrong");
-                }
-            }
-
-            log = new ArrayList<>();
-
-            //encrypt that bitch back
-            cipherdb = aes.cipher(dbpw, aeskey);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void changeKey(){
-        long startTime = System.nanoTime();
-
-        sha1key = UUID.randomUUID().toString();
-        users = new HashSet<>();
-        try {
-                HashMap<String, String> db = aes.decipher(cipherdb, aeskey);
-                Iterator it = db.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry pair = (Map.Entry)it.next();
-                    String user = applyFunction(  (String) pair.getKey(), (String) pair.getValue());
-                    users.add(user);
-                    it.remove();
-                }
-
-        } catch (Exception e) {
-            e.printStackTrace(); 
-        }
-
-        long endTime = System.nanoTime();
-        System.out.println("Changed hash set with key " + sha1key + " and it took " + (int) ((endTime - startTime)/(1000000)) + " ms!");
-
-    }
 
 }

@@ -72,23 +72,8 @@ public class newSchemeV1SHAMD5 implements SchemeInterface {
         if (!usernames.add(username))
             return false;
         else {
-            if (users.add(applyFunction(username, password))) {
-                log.add(new ArrayList<>() {{
-                    add("add");
-                    add(username);
-                    add(password);
-                }});
-                if (++count % finalcount == 0) {
-                    writeData(users, fileName);
-                    writeData(usernames, fileUserNames);
-                    writeData(cipherdb, chipheredDB);
-                    writeData(sha1key, KEYfile);
-                }
-                return true;
-            } else {
-                return false;
-            }
-        }
+            usernames.add(username);
+            return users.add(applyFunction(username, password));}
     }
 
     public boolean changePassword(String username, String password1, String password2) {

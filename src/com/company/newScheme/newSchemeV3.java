@@ -1,14 +1,19 @@
 package com.company.newScheme;
 
+//import redis.clients.jedis.Jedis;
+
 import com.company.AES;
+import com.company.SHA_224;
+import com.company.SHA_3;
 import com.company.SchemeInterface;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class newSchemeV2 implements SchemeInterface {
+public class newSchemeV3 implements SchemeInterface {
 
     private HashSet<String> users;
     private HashSet<String> usernames;
@@ -28,7 +33,9 @@ public class newSchemeV2 implements SchemeInterface {
     private final static String chipheredDB = "cipherdb.txt";
     private final static String KEYfile = "KEY.txt";
 
-    public newSchemeV2() {
+
+    private int choice;
+    public newSchemeV3() {
         count = 0;
         cipherdb = null;
         users = (HashSet<String>) readData(fileName);
@@ -52,10 +59,10 @@ public class newSchemeV2 implements SchemeInterface {
             }
         }).start();
 
+
+        choice = ThreadLocalRandom.current().nextInt(0, 5);
     }
 
-
-    private static final String HMAC_SHA1_ALGORITHM = "HmacSHA1";
 
     public boolean login(String username, String password) {
         String user = applyFunction(username, password);
@@ -68,7 +75,6 @@ public class newSchemeV2 implements SchemeInterface {
             return false;
         else {
             if(users.add(applyFunction(username, password))) {
-                usernames.add(username);
                 log.add(new ArrayList<>() {{
                     add("add");
                     add(username);
@@ -91,8 +97,8 @@ public class newSchemeV2 implements SchemeInterface {
             return false;
         else {
             if(users.add(applyFunction(username, password2))){
-            log.add(new ArrayList<>() {{add("cp");add(username);add(password1);add(password2);}});
-            return true;}
+                log.add(new ArrayList<>() {{add("cp");add(username);add(password1);add(password2);}});
+                return true;}
             else return false;
         }
     }
@@ -101,13 +107,13 @@ public class newSchemeV2 implements SchemeInterface {
         if (!users.remove(applyFunction(username1, password)))
             return false;
         else {
-           if( users.add(applyFunction(username2, password))) {
-               usernames.remove(username1);
-               usernames.add(username2);
-               log.add(new ArrayList<>() {{add("cu");add(username1);add(username2);add(password);}});
-               return true;
-           }
-           else return false;
+            if( users.add(applyFunction(username2, password))) {
+                usernames.remove(username1);
+                usernames.add(username2);
+                log.add(new ArrayList<>() {{add("cu");add(username1);add(username2);add(password);}});
+                return true;
+            }
+            else return false;
         }
     }
 
@@ -115,23 +121,36 @@ public class newSchemeV2 implements SchemeInterface {
         if (!usernames.remove(username))
             return false;
         else {
-           if( users.remove(applyFunction(username, password))) {
-               log.add(new ArrayList<>() {{
-                   add("del");
-                   add(username);
-                   add(password);
-               }});
-               return true;
-           }
-           else return false;
+            if( users.remove(applyFunction(username, password))) {
+                log.add(new ArrayList<>() {{
+                    add("del");
+                    add(username);
+                    add(password);
+                }});
+                return true;
+            }
+            else return false;
         }
     }
-    
+
     public String applyFunction(String username, String password) {
+        String user;
+        switch(choice){
+            case 0: user = applyHMAC(username, password, "HmacSHA1"); break;
+            case 1: user = applyHMAC(username, password, "HmacMD5"); break;
+            case 2: user = applyHMAC(username, password, "HmacSHA256"); break;
+            case 3: user = SHA_224.applyFunction(username+sep+password); break;
+            case 4: user = SHA_3.applyFunction(username+sep+password); break;
+            default: return null;
+        }
+        return user;
+    }
+
+    private String applyHMAC(String username, String password, String HMAC){
         String user = null;
         try {
-            SecretKeySpec key = new SecretKeySpec((sha1key).getBytes("UTF-8"), HMAC_SHA1_ALGORITHM);
-            Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
+            SecretKeySpec key = new SecretKeySpec((sha1key).getBytes("UTF-8"), HMAC);
+            Mac mac = Mac.getInstance(HMAC);
             mac.init(key);
 
             byte[] bytes = mac.doFinal((username + sep + password).getBytes("ASCII"));
@@ -146,18 +165,16 @@ public class newSchemeV2 implements SchemeInterface {
             }
             user = hash.toString();
         } catch (Exception e){
-                e.printStackTrace();
-            }
-
+            e.printStackTrace();
+        }
         return user;
     }
-
     private void dumpLog(){
         try {
             HashMap<String, String> dbpw;
             if (cipherdb != null) {
-                //decipher old ciphered db and put it in String
                 dbpw = AES.decipher(cipherdb, aeskey);
+
                 //String to Map
             }
             else
@@ -186,8 +203,7 @@ public class newSchemeV2 implements SchemeInterface {
             log = new ArrayList<>();
 
             //encrypt that bitch back
-            if(dbpw != null)
-                 cipherdb = AES.cipher(dbpw, aeskey);
+            cipherdb = AES.cipher(dbpw, aeskey);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -197,9 +213,11 @@ public class newSchemeV2 implements SchemeInterface {
     private void changeKey(){
         if (cipherdb != null) {
 
+            choice = ThreadLocalRandom.current().nextInt(0, 5);
+            sha1key = UUID.randomUUID().toString();
+
             long startTime = System.nanoTime();
 
-            sha1key = UUID.randomUUID().toString();
             users = new HashSet<>();
             try {
                 HashMap<String, String> db = AES.decipher(cipherdb, aeskey);
@@ -216,8 +234,15 @@ public class newSchemeV2 implements SchemeInterface {
             }
 
             long endTime = System.nanoTime();
-            System.out.println("Changed hash set with key " + sha1key + " and it took " + (int) ((endTime - startTime) / (1000000)) + " ms!");
+
+            System.out.println("Changed hash set with key " + sha1key + " and it took " + (int) ((endTime - startTime) / (1000000)) + " ms!" +
+                    "choice " + choice);
         }
+            writeData(users, fileName);
+            writeData(usernames, fileUserNames);
+            writeData(cipherdb, chipheredDB);
+            writeData(sha1key, KEYfile);
+
     }
 
     private OutputStream ops = null;
