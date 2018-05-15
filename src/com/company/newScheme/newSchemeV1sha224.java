@@ -64,7 +64,7 @@ public class newSchemeV1sha224 implements SchemeInterface {
         }
 
     }
-    
+
     public String applyFunction(String username, String password) {
         MessageDigest md = null;
         try {

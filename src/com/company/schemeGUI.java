@@ -1,6 +1,6 @@
 package com.company;
 
-import com.company.newScheme.newSchemeV0;
+import com.company.newScheme.newSchemeV5;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,9 +30,9 @@ public class schemeGUI implements ActionListener {
 
     final static int minXlbl = 150;
     final static int minXField = 120;
-    static newSchemeV0 NS;
+    static newSchemeV5 NS;
     public static void main(String[] args) {
-        NS = new newSchemeV0();
+        NS = new newSchemeV5();
         JFrame frame = new JFrame("New Scheme");
         frame.setSize(500, 200);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

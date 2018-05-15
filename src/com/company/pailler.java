@@ -15,6 +15,7 @@ public class pailler {
 
     private int bitLength;
 
+    private static BigInteger[] sumatorio;
     public pailler(int bitLengthVal, int certainty) {
         KeyGeneration(bitLengthVal, certainty);
     }
@@ -58,6 +59,7 @@ public class pailler {
     }
 
     public static void main(String[] str) {
+        sumatorio = new BigInteger[]{BigInteger.valueOf(1), BigInteger.valueOf(2), BigInteger.valueOf(3), BigInteger.valueOf(4), BigInteger.valueOf(5)};
         /* instantiating an object of Paillier cryptosystem*/
         pailler paillier = new pailler();
         /* instantiating two plaintext msgs*/
@@ -76,8 +78,23 @@ public class pailler {
         /* test homomorphic properties -> D(E(m1)*E(m2) mod n^2) = (m1 + m2) mod n */
         BigInteger product_em1em2 = em1.multiply(em2).mod(paillier.nsquare);
         BigInteger sum_m1m2 = m1.add(m2).mod(paillier.n);
+
+        BigInteger bigaux = new BigInteger("0");
+        BigInteger bigauxDec = sumatorio[1].multiply(sumatorio[4]).mod(paillier.nsquare);
+
+        for(int i = 0; i < sumatorio.length ; i++) {
+            bigaux = bigaux.add(sumatorio[i]).mod(paillier.n);
+        }
+
+
+
         System.out.println("original sum: " + sum_m1m2.toString());
         System.out.println("decrypted sum: " + paillier.Decryption(product_em1em2).toString());
+
+        System.out.println("original big Aux: " + bigaux.toString());
+        System.out.println("original big Aux Decrypted: " + paillier.Decryption(bigauxDec).toString());
+
+
 
         /* test homomorphic properties -> D(E(m1)^m2 mod n^2) = (m1*m2) mod n */
         BigInteger expo_em1m2 = em1.modPow(m2, paillier.nsquare);

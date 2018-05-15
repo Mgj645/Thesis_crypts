@@ -36,9 +36,7 @@ public class Main extends Application  {
     final static boolean newSchemeV2 = false;
     final static boolean newSchemeV3 = false;
     final static boolean newSchemeV4 = true;
-    final static boolean newSchemeV4redis = true;
-
-
+    final static boolean newSchemeV4redis = false;
 
     final static boolean newSchemeV1shaMD5 = false;
     final static boolean newSchemeV1sha256 = false;
@@ -48,11 +46,9 @@ public class Main extends Application  {
     final static boolean newScheme = true;
     final static boolean newSchemeDES = true;
 
-
-
     final static boolean sequence_hash = false;
 
-    final static int noUsers = 100000;
+    final static int noUsers = 800;
 
     final static boolean register = true;
     final static boolean login = true;
@@ -182,8 +178,9 @@ public class Main extends Application  {
             long startTime = System.nanoTime();
             for (int i = 0; i < noUsers; i++)
                 sc.register(usernames[i], passwords[i]);
-            System.out.print(" - Registration Completed");
             long endTime = System.nanoTime();
+            System.out.print(" - Registration Completed");
+
             duration[0] = (double) ((endTime - startTime)/(1000000));
         }
         Thread.sleep(1500);
@@ -196,8 +193,9 @@ public class Main extends Application  {
                 else
                     wrong++;
             }
-            System.out.print(" - Login Completed " + right + " sucessful, " + wrong + " not!" );
             long endTime = System.nanoTime();
+            System.out.print(" - Login Completed " + right + " sucessful, " + wrong + " not!" );
+
             duration[1] = (double) ((endTime - startTime)/(1000000));
 
         }

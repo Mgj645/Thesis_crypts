@@ -1,7 +1,5 @@
 package com.company.newScheme;
 
-//import redis.clients.jedis.Jedis;
-
 import com.company.AES;
 import com.company.SHA_224;
 import com.company.SHA_3;
@@ -272,10 +270,5 @@ public class newSchemeV4 implements SchemeInterface {
             System.out.println("Changed hash set with key " + sha1key + " and it took " + (int) ((endTime - startTime) / (1000000)) + " ms!" +
                     "choice " + choice);
         }
-
-
     }
-
-
-
 }

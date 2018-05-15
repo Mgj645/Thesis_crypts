@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Thesis_crypts">
+    <output-path>$PROJECT_DIR$/out/artifacts/Thesis_crypts</output-path>
+    <root id="archive" name="Thesis_crypts.jar">
+      <element id="module-output" name="Thesis_crypts" />
+      <element id="file-copy" path="$PROJECT_DIR$/jars/bcprov-jdk15on-1.59.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/jars/commons-codec-1.11.jar" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="file-copy" path="$PROJECT_DIR$/jars/jedis-2.9.0.jar" />
+      <element id="library" level="module" name="JUnit5.0" module-name="Thesis_crypts" />
+      <element id="file-copy" path="$PROJECT_DIR$/jars/PPH.jar" />
+    </root>
+  </artifact>
+</component>

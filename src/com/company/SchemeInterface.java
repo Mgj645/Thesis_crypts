@@ -5,7 +5,6 @@ public interface SchemeInterface {
 
     boolean login(String username, String password) throws Exception;
 
-
     boolean register(String username, String password) throws Exception;
 
     boolean changePassword(String username, String password1, String password2);

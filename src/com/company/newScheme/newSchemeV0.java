@@ -12,7 +12,6 @@ public class newSchemeV0 implements SchemeInterface {
 
     private static String sha1key;
     private final static String sep = "|%";
-    private final static int finalcount = 10000;
 
     public newSchemeV0() {
         users = new HashSet<String>();
