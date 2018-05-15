@@ -3,17 +3,14 @@ package com.company.newScheme;
 import com.company.SHA_224;
 import com.company.SHA_3;
 import com.company.SchemeInterface;
-import redis.clients.jedis.Jedis;
 import samples.sample;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
-public class newSchemeV5 implements SchemeInterface {
+public class newSchemeV5text implements SchemeInterface {
 
     private HashSet<String> users;
     private HashSet<String> usernames;
@@ -27,50 +24,41 @@ public class newSchemeV5 implements SchemeInterface {
 
     private byte[] cipherdb;
 
-    private final static String usersRedis = "newSchemeUsers";
-    private final static String userNamesRedis = "newSchemeUserNames";
-    private final static String chipheredDB = "cipherdb";
 
+    private final static String fileName = "V5newSchemeUsers.txt";
+    private final static String fileUserNames = "V5newSchemeUserNames.txt";
+    private final static String chipheredDB = "V5cipherdb.txt";
+    private final static String SKEYfile = "V5sKEY.txt";
+    private final static String AKEYfile = "V5aKEY.txt";
     private int choice;
     private final static boolean clearRedis = true;
-    Jedis jedis;
+
 
     sample tpm;
-    public newSchemeV5() {
+    public newSchemeV5text() {
         cipherdb = null;
-        jedis = new Jedis();
+        cipherdb = null;
+        users = (HashSet<String>) readData(fileName);
+        usernames = (HashSet<String>) readData(fileUserNames);
 
-        if(clearRedis){
-            jedis.del(usersRedis);
-            jedis.del(userNamesRedis);
-            jedis.del(chipheredDB);
-            jedis.del("AESkey");
-            jedis.del("SHA1key");
-        }
+        cipherdb = (byte[]) readData(chipheredDB);
+        sha1key = (byte[]) readData(SKEYfile);
+        aeskey = (byte[]) readData(AKEYfile);
 
-        users = new HashSet<>(); usernames = new HashSet<>();
-        users.addAll(jedis.smembers(usersRedis));
-        usernames.addAll(jedis.smembers(userNamesRedis));
-        cipherdb = jedis.get(chipheredDB.getBytes());
+        if(sha1key==null)
+           sha1key = getRandom(16);
 
-        String a = jedis.get("SHA1key");
-        sha1key = (a==null) ? getRandom(16) : a.getBytes();
-
-        a = jedis.get("AESkey");
-        aeskey = (a==null) ? getRandom(16) : a.getBytes();
+        if(aeskey==null)
+           aeskey = getRandom(16);
 
         System.out.println(toHex(aeskey));
         System.out.println(toHex(sha1key));
+        writeData(sha1key, SKEYfile);
+        writeData(aeskey, AKEYfile);
 
-        sep = "|%|";
         tpm = new sample();
 
-        if(jedis.exists("choice"))
-            choice = Integer.parseInt(jedis.get("choice"));
-        else {
-            choice = ThreadLocalRandom.current().nextInt(0, 5);
-            jedis.set("choice", String.valueOf(choice));
-        }
+        choice = 0;
 
         log = new ArrayList<>();
         new Thread(() -> {
@@ -205,29 +193,16 @@ public class newSchemeV5 implements SchemeInterface {
             for(ArrayList<String> entry : log){
                 switch(entry.get(0)){
                     case "add":
-                        jedis.sadd(usersRedis, applyFunction(entry.get(1), entry.get(2)));
-                        jedis.sadd(userNamesRedis, entry.get(1));
                         dbpw.put(entry.get(1), entry.get(2));
                         break;
                     case "cp":
-                        jedis.sdiff(usersRedis, applyFunction(entry.get(1), entry.get(2)));
-                        jedis.sadd(usersRedis, applyFunction(entry.get(1), entry.get(3)));
-                        dbpw.replace(entry.get(1), entry.get(3));
+                           dbpw.replace(entry.get(1), entry.get(3));
                         break;
                     case "cu":
-                        jedis.sdiff(usersRedis, applyFunction(entry.get(1), entry.get(3)));
-                        jedis.sadd(usersRedis, applyFunction(entry.get(2), entry.get(3)));
-
-                        jedis.sdiff(userNamesRedis, entry.get(1));
-                        jedis.sadd(userNamesRedis, entry.get(2));
-
-                        dbpw.remove(entry.get(1));
+                     dbpw.remove(entry.get(1));
                         dbpw.put(entry.get(2), entry.get(3));
                         break;
                     case "del":
-                        jedis.sdiff(usersRedis, applyFunction(entry.get(1), entry.get(2)));
-                        jedis.sdiff(userNamesRedis, entry.get(1));
-
                         dbpw.remove(entry.get(1));
                         break;
                     default: System.out.println("Something went terribly wrong");
@@ -240,8 +215,8 @@ public class newSchemeV5 implements SchemeInterface {
             aeskey =  getRandom(16);
 
             cipherdb = tpm.encrypt(dbpw.toString().getBytes(), aeskey,0);
-            jedis.set(chipheredDB.getBytes(), cipherdb);
-            jedis.set("AESkey", new String(aeskey));
+            writeData(cipherdb, chipheredDB);
+            writeData(aeskey, AKEYfile);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -252,12 +227,9 @@ public class newSchemeV5 implements SchemeInterface {
     private void changeKey(){
         if (cipherdb != null) {
 
-            choice = ThreadLocalRandom.current().nextInt(0, 5);
-            jedis.set("choice", String.valueOf(choice));
-
             sha1key =  getRandom(16);
-
-            jedis.set("SHA1key", new String(sha1key));
+            sep = new String(getRandom(4));
+            writeData(sha1key, SKEYfile);
 
             long startTime = System.nanoTime();
 
@@ -267,9 +239,7 @@ public class newSchemeV5 implements SchemeInterface {
                 Iterator it = db.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry) it.next();
-                    jedis.del(usersRedis);
-                    jedis.sadd(usersRedis, applyFunction((String) pair.getKey(),(String) pair.getValue()));
-                    String user = applyFunction((String) pair.getKey(), (String) pair.getValue());
+                      String user = applyFunction((String) pair.getKey(), (String) pair.getValue());
                     users.add(user);
                     it.remove();
                 }
@@ -282,6 +252,10 @@ public class newSchemeV5 implements SchemeInterface {
 
             System.out.println("Changed hash set with key " + toHex(sha1key)+ " and it took " + (int) ((endTime - startTime) / (1000000)) + " ms!" +
                     " choice " + choice);
+
+            writeData(users, fileName);
+            writeData(usernames, fileUserNames);
+
         }
     }
 
@@ -322,4 +296,61 @@ public class newSchemeV5 implements SchemeInterface {
         }
         return sb.toString();
     }
+
+
+    private OutputStream ops = null;
+    private ObjectOutputStream objOps = null;
+
+
+    private void writeData(Object users, String fileName) {
+        //txts no explorer
+        try {
+            ops = new FileOutputStream(fileName);
+            objOps = new ObjectOutputStream(ops);
+            objOps.writeObject(users);
+            objOps.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (objOps != null) objOps.close();
+            } catch (Exception ex) {
+
+            }
+        }
+    }
+    private Object readData(String file) {
+        InputStream fileIs = null;
+        ObjectInputStream objIs = null;
+        Object users;
+        try {
+            fileIs = new FileInputStream(file);
+            objIs = new ObjectInputStream(fileIs);
+            users = objIs.readObject();
+            //System.out.println("");
+            //System.out.println(Collections.singletonList(users)); // method 2
+            return users;
+        } catch (FileNotFoundException e) {
+
+            if(file.equals(fileUserNames) || file.equals(fileName))
+                return new HashSet<String>();
+            else
+                return null;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (objIs != null) objIs.close();
+            } catch (Exception ex) {
+
+            }
+        }
+        return null;
+    }
+
 }
