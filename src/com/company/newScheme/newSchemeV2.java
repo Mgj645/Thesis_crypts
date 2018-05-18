@@ -17,7 +17,7 @@ public class newSchemeV2 implements SchemeInterface {
     private final static String sep = "|%";
 
     private int count;
-    private final static int finalcount = 1;
+    private final static int finalcount = 1000000;
     private ArrayList<ArrayList<String>> log;
     private final static String aeskey = "q4t7w!z%C*F-JaNd";
 

@@ -2,6 +2,8 @@ package tss;
 
 import tss.tpm.*;
 
+import java.io.Serializable;
+
 
 // -----------This is an auto-generated file: do not edit
 
@@ -9,7 +11,7 @@ import tss.tpm.*;
 /**
 * The Tpm class provides Java functions to program a TPM.<p>TPM-defined functions have names like TPM2_PCR_Read(): the TPM2_ prefix is dropped in the Java definition of these functions: e.g. PCR_Read().<p>The Tpm and TpmBase classes also provide a few helper-functions: for example, the command _allowErrors() tells Tpm to not throw an exception if the Next TPM command returns an error.<p>Tpm objects must be "connected" to a physical TPM or simulator using the _setDevice() method. Some devices (like the TPM simulator) need to be configured before they can be used. See the sample code that is part of the TSS.Java distribution for more information.
 */
-public class Tpm extends TpmBase
+public class Tpm extends TpmBase implements Serializable
 {
     /**
      * TPM2_Startup() is always preceded by _TPM_Init, which is the physical indication that TPM initialization is necessary because of a system-wide reset. TPM2_Startup() is only valid after _TPM_Init. Additional TPM2_Startup() commands are not allowed after it has completed successfully. If a TPM requires TPM2_Startup() and another command is received, or if the TPM receives TPM2_Startup() when it is not required, the TPM shall return TPM_RC_INITIALIZE.

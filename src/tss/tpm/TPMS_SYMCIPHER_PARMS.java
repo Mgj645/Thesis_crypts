@@ -1,6 +1,11 @@
 package tss.tpm;
 
-import tss.*;
+import tss.InByteBuf;
+import tss.OutByteBuf;
+import tss.TpmStructure;
+import tss.TpmStructurePrinter;
+
+import java.io.Serializable;
 
 
 // -----------This is an auto-generated file: do not edit
@@ -9,7 +14,7 @@ import tss.*;
 /**
 * This structure contains the parameters for a symmetric block cipher object.
 */
-public class TPMS_SYMCIPHER_PARMS extends TpmStructure implements TPMU_PUBLIC_PARMS 
+public class TPMS_SYMCIPHER_PARMS extends TpmStructure implements TPMU_PUBLIC_PARMS, Serializable
 {
     /**
      * This structure contains the parameters for a symmetric block cipher object.

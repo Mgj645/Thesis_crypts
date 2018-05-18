@@ -4,9 +4,8 @@ import com.company.SHA_224;
 import com.company.SHA_3;
 import com.company.SchemeInterface;
 import samples.sample;
+import tss.tpm.TPM_ALG_ID;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.util.*;
 
@@ -18,11 +17,12 @@ public class newSchemeV5text implements SchemeInterface {
     private static byte[] sha1key;
     private static byte[] aeskey;
 
-    private static String sep;
+    private static String sep = "|%|";
 
     private ArrayList<ArrayList<String>> log;
 
     private byte[] cipherdb;
+    private byte[] iv;
 
 
     private final static String fileName = "V5newSchemeUsers.txt";
@@ -30,13 +30,12 @@ public class newSchemeV5text implements SchemeInterface {
     private final static String chipheredDB = "V5cipherdb.txt";
     private final static String SKEYfile = "V5sKEY.txt";
     private final static String AKEYfile = "V5aKEY.txt";
-    private int choice;
-    private final static boolean clearRedis = true;
+    private final static String IVfile = "V5iv.txt";
 
+    private int choice;
 
     sample tpm;
     public newSchemeV5text() {
-        cipherdb = null;
         cipherdb = null;
         users = (HashSet<String>) readData(fileName);
         usernames = (HashSet<String>) readData(fileUserNames);
@@ -44,9 +43,11 @@ public class newSchemeV5text implements SchemeInterface {
         cipherdb = (byte[]) readData(chipheredDB);
         sha1key = (byte[]) readData(SKEYfile);
         aeskey = (byte[]) readData(AKEYfile);
+        iv = (byte[]) readData(IVfile);
+
 
         if(sha1key==null)
-           sha1key = getRandom(16);
+           sha1key = getRandom(6);
 
         if(aeskey==null)
            aeskey = getRandom(16);
@@ -56,11 +57,16 @@ public class newSchemeV5text implements SchemeInterface {
         writeData(sha1key, SKEYfile);
         writeData(aeskey, AKEYfile);
 
-        tpm = new sample();
+        tpm = new sample() ;
+
+        if(iv!=null)
+            tpm.setIV(iv);
 
         choice = 0;
 
         log = new ArrayList<>();
+
+        printEverything();
         new Thread(() -> {
             try {
                 int count = 0;
@@ -80,8 +86,7 @@ public class newSchemeV5text implements SchemeInterface {
 
 
     public boolean login(String username, String password) {
-        String user = applyFunction(username, password);
-        return users.contains(user);
+        return users.contains(applyFunction(username, password));
     }
 
     public boolean register(String username, String password) {
@@ -146,51 +151,29 @@ public class newSchemeV5text implements SchemeInterface {
 
     public String applyFunction(String username, String password) {
         String user;
+        final String name = username + sep + password;
         switch(choice){
-            case 0: user = applyHMAC(username, password, "HmacSHA1"); break;
-            case 1: user = applyHMAC(username, password, "HmacMD5"); break;
-            case 2: user = applyHMAC(username, password, "HmacSHA256"); break;
-            case 3: user = SHA_224.applyFunction(username+sep+password); break;
-            case 4: user = SHA_3.applyFunction(username+sep+password); break;
+            case 0: user = tpm.hmac(TPM_ALG_ID.SHA1, name.getBytes(), sha1key); break;
+            case 1: user = tpm.hmac(TPM_ALG_ID.SHA256, name.getBytes(), sha1key); break;
+            case 2: user = tpm.hmac(TPM_ALG_ID.SHA384, name.getBytes(), sha1key); break;
+            case 3: user = SHA_224.applyFunction(name); break;
+            case 4: user = SHA_3.applyFunction(name); break;
             default: return null;
         }
         return user;
     }
 
-    private String applyHMAC(String username, String password, String HMAC){
-        String user = null;
-        try {
-            SecretKeySpec key = new SecretKeySpec(sha1key, HMAC);
-            Mac mac = Mac.getInstance(HMAC);
-            mac.init(key);
-
-            byte[] bytes = mac.doFinal((username + sep + password).getBytes("ASCII"));
-
-            StringBuffer hash = new StringBuffer();
-            for (int i = 0; i < bytes.length; i++) {
-                String hex = Integer.toHexString(0xFF & bytes[i]);
-                if (hex.length() == 1) {
-                    hash.append('0');
-                }
-                hash.append(hex);
-            }
-            user = hash.toString();
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return user;
-    }
     private void dumpLog(){
         try {
             HashMap<String, String> dbpw;
             if (cipherdb != null) {
-                dbpw = byte2map(tpm.decrypt(cipherdb, aeskey, 0));
+                dbpw = byte2map(tpm.decrypt(cipherdb, aeskey));
             }
             else
                 dbpw = new HashMap<>();
 
             //update the hashmap according to the log
-            for(ArrayList<String> entry : log){
+            for(ArrayList<String> entry : log)
                 switch(entry.get(0)){
                     case "add":
                         dbpw.put(entry.get(1), entry.get(2));
@@ -207,16 +190,18 @@ public class newSchemeV5text implements SchemeInterface {
                         break;
                     default: System.out.println("Something went terribly wrong");
                 }
-            }
 
             log = new ArrayList<>();
 
             //encrypt that bitch back
             aeskey =  getRandom(16);
 
-            cipherdb = tpm.encrypt(dbpw.toString().getBytes(), aeskey,0);
+            cipherdb = tpm.encrypt(dbpw.toString().getBytes(), aeskey);
+            iv = tpm.getIV();
+            writeData(iv, IVfile);
             writeData(cipherdb, chipheredDB);
             writeData(aeskey, AKEYfile);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -227,20 +212,19 @@ public class newSchemeV5text implements SchemeInterface {
     private void changeKey(){
         if (cipherdb != null) {
 
-            sha1key =  getRandom(16);
-            sep = new String(getRandom(4));
+            sha1key =  getRandom(6);
+           // sep = new String(getRandom(4));
             writeData(sha1key, SKEYfile);
 
             long startTime = System.nanoTime();
 
             users = new HashSet<>();
             try {
-                HashMap<String, String> db = byte2map(tpm.decrypt(cipherdb, aeskey, 0));
+                HashMap<String, String> db = byte2map(tpm.decrypt(cipherdb, aeskey));
                 Iterator it = db.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry) it.next();
-                      String user = applyFunction((String) pair.getKey(), (String) pair.getValue());
-                    users.add(user);
+                    users.add(applyFunction((String) pair.getKey(), (String) pair.getValue()));
                     it.remove();
                 }
 
@@ -255,8 +239,8 @@ public class newSchemeV5text implements SchemeInterface {
 
             writeData(users, fileName);
             writeData(usernames, fileUserNames);
-
         }
+       // printEverything();
     }
 
     private static HashMap<String, String> byte2map(byte[] dbB){
@@ -290,18 +274,13 @@ public class newSchemeV5text implements SchemeInterface {
     {
         StringBuilder sb = new StringBuilder(x.length * 2);
         for (byte b: x)
-        {
             sb.append(String.format("%02x", b));
-
-        }
         return sb.toString();
     }
 
 
     private OutputStream ops = null;
     private ObjectOutputStream objOps = null;
-
-
     private void writeData(Object users, String fileName) {
         //txts no explorer
         try {
@@ -351,6 +330,17 @@ public class newSchemeV5text implements SchemeInterface {
             }
         }
         return null;
+    }
+
+    private void printEverything(){
+        System.out.println("SHA1 key: " + toHex(sha1key));
+        System.out.println("AES key: " + toHex(aeskey) );
+        if(cipherdb!=null)
+        System.out.println("Ciphered DB: " + toHex(cipherdb) );
+        System.out.println("Users: " ); users.forEach(System.out::println);
+        System.out.println("Usernames: " ); usernames.forEach(System.out::println);
+        if(iv!=null)
+        System.out.println("IV: " + toHex(iv));
     }
 
 }

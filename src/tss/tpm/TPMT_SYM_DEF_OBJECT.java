@@ -2,6 +2,8 @@ package tss.tpm;
 
 import tss.*;
 
+import java.io.Serializable;
+
 
 // -----------This is an auto-generated file: do not edit
 
@@ -9,7 +11,7 @@ import tss.*;
 /**
 * This structure is used when different symmetric block cipher (not XOR) algorithms may be selected. If the Object can be an ordinary parent (not a derivation parent), this must be the first field in the Object's parameter (see 12.2.3.7) field.
 */
-public class TPMT_SYM_DEF_OBJECT extends TpmStructure
+public class TPMT_SYM_DEF_OBJECT extends TpmStructure implements Serializable
 {
     /**
      * This structure is used when different symmetric block cipher (not XOR) algorithms may be selected. If the Object can be an ordinary parent (not a derivation parent), this must be the first field in the Object's parameter (see 12.2.3.7) field.

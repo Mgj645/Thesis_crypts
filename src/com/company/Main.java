@@ -31,12 +31,14 @@ public class Main extends Application  {
     final static boolean aes256 = false;
     final static boolean polyPassword = false;
 
-    final static boolean newSchemeV0 = true;
+    final static boolean newSchemeV0 = false;
     final static boolean newSchemeV1 = false;
     final static boolean newSchemeV2 = false;
     final static boolean newSchemeV3 = false;
-    final static boolean newSchemeV4 = true;
+    final static boolean newSchemeV4 = false;
     final static boolean newSchemeV4redis = false;
+    final static boolean newSchemeV5text = true;
+
 
     final static boolean newSchemeV1shaMD5 = false;
     final static boolean newSchemeV1sha256 = false;
@@ -48,7 +50,7 @@ public class Main extends Application  {
 
     final static boolean sequence_hash = false;
 
-    final static int noUsers = 800;
+    final static int noUsers = 500;
 
     final static boolean register = true;
     final static boolean login = true;
@@ -74,6 +76,9 @@ public class Main extends Application  {
             if (newSchemeV4)  time.put("V4", runScheme ("V4", new newSchemeV4()));
 
             if (newSchemeV4redis)  time.put("V4R", runScheme ("V4R", new newSchemeV4redis()));
+
+            if (newSchemeV5text)  time.put("V5T", runScheme ("V5T", new newSchemeV5text()));
+
 
             if (newSchemeV1shaMD5)  time.put("V1 HMAC md5", runScheme ("HMAC V1 md5", new newSchemeV1SHAMD5()));
 

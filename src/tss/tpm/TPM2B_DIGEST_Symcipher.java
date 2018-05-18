@@ -2,6 +2,8 @@ package tss.tpm;
 
 import tss.*;
 
+import java.io.Serializable;
+
 
 // -----------This is an auto-generated file: do not edit
 
@@ -9,7 +11,7 @@ import tss.*;
 /**
 * Auto-derived from TPM2B_DIGEST to provide unique GetUnionSelector() implementation
 */
-public class TPM2B_DIGEST_Symcipher extends TpmStructure implements TPMU_PUBLIC_ID 
+public class TPM2B_DIGEST_Symcipher extends TpmStructure implements TPMU_PUBLIC_ID, Serializable
 {
     /**
      * Auto-derived from TPM2B_DIGEST to provide unique GetUnionSelector() implementation

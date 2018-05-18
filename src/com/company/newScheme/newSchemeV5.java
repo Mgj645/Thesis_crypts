@@ -196,7 +196,7 @@ public class newSchemeV5 implements SchemeInterface {
         try {
             HashMap<String, String> dbpw;
             if (cipherdb != null) {
-                dbpw = byte2map(tpm.decrypt(cipherdb, aeskey, 0));
+                dbpw = byte2map(tpm.decrypt(cipherdb, aeskey));
             }
             else
                 dbpw = new HashMap<>();
@@ -239,7 +239,7 @@ public class newSchemeV5 implements SchemeInterface {
             //encrypt that bitch back
             aeskey =  getRandom(16);
 
-            cipherdb = tpm.encrypt(dbpw.toString().getBytes(), aeskey,0);
+            cipherdb = tpm.encrypt(dbpw.toString().getBytes(), aeskey);
             jedis.set(chipheredDB.getBytes(), cipherdb);
             jedis.set("AESkey", new String(aeskey));
         } catch (Exception e) {
@@ -263,7 +263,7 @@ public class newSchemeV5 implements SchemeInterface {
 
             users = new HashSet<>();
             try {
-                HashMap<String, String> db = byte2map(tpm.decrypt(cipherdb, aeskey, 0));
+                HashMap<String, String> db = byte2map(tpm.decrypt(cipherdb, aeskey));
                 Iterator it = db.entrySet().iterator();
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry) it.next();
