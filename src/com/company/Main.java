@@ -37,7 +37,9 @@ public class Main extends Application  {
     final static boolean newSchemeV3 = false;
     final static boolean newSchemeV4 = false;
     final static boolean newSchemeV4redis = false;
-    final static boolean newSchemeV5text = true;
+    final static boolean newSchemeV5text = false;
+    final static boolean newSchemeV5TPM = true;
+
 
 
     final static boolean newSchemeV1shaMD5 = false;
@@ -50,21 +52,19 @@ public class Main extends Application  {
 
     final static boolean sequence_hash = false;
 
-    final static int noUsers = 500;
+    final static int noUsers = 10000;
 
-    final static boolean register = true;
+    final static boolean register = false;
     final static boolean login = true;
     static private HashMap<String, double[]> time;
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Press 1 for auto mode. Press 2 for manual mode.");
-        String command = br.readLine();
+        System.out.println("Auto auto-mode");
 
         time = new HashMap<>();
 
-        if (command.equals("1")) {
+      //  if (command.equals("1")) {
             simulateUsers();
-            Thread.sleep(2000);
             if (newSchemeV0)  time.put("V0", runScheme ("V0", new newSchemeV0()));
 
             if (newSchemeV1)  time.put("V1", runScheme ("V1", new newSchemeV1()));
@@ -78,6 +78,8 @@ public class Main extends Application  {
             if (newSchemeV4redis)  time.put("V4R", runScheme ("V4R", new newSchemeV4redis()));
 
             if (newSchemeV5text)  time.put("V5T", runScheme ("V5T", new newSchemeV5text()));
+            if (newSchemeV5TPM)  time.put("V5TPM", runScheme ("V5TPM", new newSchemeV5TPM()));
+
 
 
             if (newSchemeV1shaMD5)  time.put("V1 HMAC md5", runScheme ("HMAC V1 md5", new newSchemeV1SHAMD5()));
@@ -105,7 +107,7 @@ public class Main extends Application  {
             launch(args);
 
             //if (sequence_hash) seqHash();
-        } else if (command.equals(("2"))) {
+       /* } else if (command.equals(("2"))) {
             com.company.newScheme.newSchemeV4redis NS = new newSchemeV4redis();
             System.out.println("Welcome to the new scheme");
             while (true) {
@@ -150,7 +152,7 @@ public class Main extends Application  {
         } else {
             System.out.println("Command not recognized");
 
-        }
+        }*/
     }
 
     private static void simulateUsers() throws IOException {

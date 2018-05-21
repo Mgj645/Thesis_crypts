@@ -196,7 +196,11 @@ public class newSchemeV5text implements SchemeInterface {
             //encrypt that bitch back
             aeskey =  getRandom(16);
 
-            cipherdb = tpm.encrypt(dbpw.toString().getBytes(), aeskey);
+            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+            ObjectOutputStream out = new ObjectOutputStream(byteOut);
+            out.writeObject(dbpw);
+
+            cipherdb = tpm.encrypt(byteOut.toByteArray(), aeskey);
             iv = tpm.getIV();
             writeData(iv, IVfile);
             writeData(cipherdb, chipheredDB);
@@ -244,18 +248,16 @@ public class newSchemeV5text implements SchemeInterface {
     }
 
     private static HashMap<String, String> byte2map(byte[] dbB){
-        Properties props = new Properties();
-        String db = new String(dbB);
-        try {
-            props.load(new StringReader(db.substring(1, db.length() - 1).replace(", ", "\n")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        HashMap<String, String> dbpw = new HashMap<>();
-        for (Map.Entry<Object, Object> e : props.entrySet()) {
-            dbpw.put((String)e.getKey(), (String)e.getValue());
-        }
 
+        HashMap<String, String> dbpw = new HashMap<>();
+        try {
+            ByteArrayInputStream byteIn = new ByteArrayInputStream(dbB);
+            ObjectInputStream in = new ObjectInputStream(byteIn);
+            dbpw = (HashMap<String, String>) in.readObject();
+        }
+        catch (Exception E){
+            System.out.println("Ouch.");
+        }
         return dbpw;
     }
     Random rand;
