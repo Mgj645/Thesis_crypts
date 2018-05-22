@@ -12,7 +12,6 @@ import javafx.stage.Stage;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -32,14 +31,14 @@ public class Main extends Application  {
     final static boolean polyPassword = false;
 
     final static boolean newSchemeV0 = false;
-    final static boolean newSchemeV1 = false;
+    final static boolean newSchemeV1 = true;
     final static boolean newSchemeV2 = false;
     final static boolean newSchemeV3 = false;
     final static boolean newSchemeV4 = false;
     final static boolean newSchemeV4redis = false;
     final static boolean newSchemeV5text = false;
-    final static boolean newSchemeV5TPM = true;
-
+    final static boolean newSchemeV5TPM =  false;
+    final static boolean newSchemeV5Keys = true;
 
 
     final static boolean newSchemeV1shaMD5 = false;
@@ -52,13 +51,12 @@ public class Main extends Application  {
 
     final static boolean sequence_hash = false;
 
-    final static int noUsers = 10000;
+    final static int noUsers = 1000;
 
-    final static boolean register = false;
+    final static boolean register = true;
     final static boolean login = true;
     static private HashMap<String, double[]> time;
     public static void main(String[] args) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Auto auto-mode");
 
         time = new HashMap<>();
@@ -79,6 +77,7 @@ public class Main extends Application  {
 
             if (newSchemeV5text)  time.put("V5T", runScheme ("V5T", new newSchemeV5text()));
             if (newSchemeV5TPM)  time.put("V5TPM", runScheme ("V5TPM", new newSchemeV5TPM()));
+        if (newSchemeV5Keys)  time.put("V5Keys", runScheme ("V5Keys", new newSchemeV5keys()));
 
 
 

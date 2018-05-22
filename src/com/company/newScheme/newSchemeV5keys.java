@@ -2,13 +2,14 @@ package com.company.newScheme;
 
 import com.company.SchemeInterface;
 import samples.sample;
-import tss.tpm.TPM_ALG_ID;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.util.HashSet;
 import java.util.Random;
 
-public class newSchemeV5TPM implements SchemeInterface {
+public class newSchemeV5keys implements SchemeInterface {
 
     private HashSet<String> users;
     private HashSet<String> usernames;
@@ -25,15 +26,13 @@ public class newSchemeV5TPM implements SchemeInterface {
     int finalcount = entries;
 
     sample tpm;
-    public newSchemeV5TPM() {
+    public newSchemeV5keys() {
         users = (HashSet<String>) readData(fileName);
         usernames = (HashSet<String>) readData(fileUserNames);
-        sha1key = (byte[]) readData(SKEYfile);
-
-        if(sha1key==null)
-           sha1key = getRandom(6);
 
         tpm = new sample() ;
+
+        tpm.ek(getRandom(6));
     }
 
     int count = 0;
@@ -93,11 +92,30 @@ public class newSchemeV5TPM implements SchemeInterface {
     }
 
     public String applyFunction(String username, String password) {
-        String user;
-        final String name = username + sep + password;
-        user = tpm.hmac(TPM_ALG_ID.SHA1, name.getBytes(), sha1key);
-        return user;
-    }
+
+        String user = null;
+        try {
+            SecretKeySpec key = new SecretKeySpec((tpm.getKey()), "HmacSHA1");
+            Mac mac = Mac.getInstance("HmacSHA1");
+            mac.init(key);
+
+            byte[] bytes = mac.doFinal((username + sep + password).getBytes("ASCII"));
+
+            StringBuffer hash = new StringBuffer();
+            for (int i = 0; i < bytes.length; i++) {
+                String hex = Integer.toHexString(0xFF & bytes[i]);
+                if (hex.length() == 1) {
+                    hash.append('0');
+                }
+                hash.append(hex);
+            }
+            user = hash.toString();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return user;    }
+
 
     Random rand;
 

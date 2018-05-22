@@ -1,9 +1,9 @@
 package samples;
 
-import java.io.IOException;
-
 import tss.*;
 import tss.tpm.*;
+
+import java.io.IOException;
 
 public class Samples 
 {
@@ -189,6 +189,7 @@ public class Samples
 				new TPMS_ECC_POINT());
 
 		// Tell the TPM to make a key with a non-null auth value.
+
 		TPMS_SENSITIVE_CREATE eccSens = new TPMS_SENSITIVE_CREATE(Helpers.getRandom(10), new byte[0]);
 
 		CreatePrimaryResponse eccPrimary = tpm.CreatePrimary(TPM_HANDLE.from(TPM_RH.OWNER), eccSens,
