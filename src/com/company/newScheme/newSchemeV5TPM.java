@@ -21,7 +21,7 @@ public class newSchemeV5TPM implements SchemeInterface {
     private final static String fileUserNames = "V5newSchemeUserNames.txt";
     private final static String SKEYfile = "V5sKEY.txt";
 
-    int entries = 10000/100;
+    int entries = 100000/100;
     int finalcount = entries;
 
     sample tpm;
@@ -39,18 +39,18 @@ public class newSchemeV5TPM implements SchemeInterface {
     int count = 0;
     int countL = 0;
     public boolean login(String username, String password) {
-        if(countL++ % entries==0)
-            System.out.println((countL)/entries + "%");
+        //if(countL++ % entries==0)
+          //  System.out.println((countL)/entries + "%");
         return users.contains(applyFunction(username, password));
     }
 
     public boolean register(String username, String password) {
-        if(count++ % entries ==0) {
-            System.out.println(count / entries + "%");
-            writeData(users, fileName);
-            writeData(usernames, fileUserNames);
-            writeData(sha1key, SKEYfile);
-        }
+       //if(count++ % entries ==0) {
+        //  System.out.println(count / entries + "%");
+          //  writeData(users, fileName);
+           // writeData(usernames, fileUserNames);
+            //writeData(sha1key, SKEYfile);
+       //}
 
         if (!usernames.add(username))
             return false;
