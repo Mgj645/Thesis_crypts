@@ -23,22 +23,22 @@ public class Main extends Application  {
     static String[] passwords;
     static String[] usernames;
 
-    final static boolean plain = true;
+    final static boolean plain = false;
     final static boolean md5 = false;
     final static boolean sha_224 = false;
     final static boolean sha_3 = false;
     final static boolean b_crypt = false;
     final static boolean aes256 = false;
-    final static boolean polyPassword = false;
+    final static boolean polyPassword = true;
 
     final static boolean newSchemeV0 = false;
-    final static boolean newSchemeV1 = false;
+    final static boolean newSchemeV1 = true;
     final static boolean newSchemeV2 = false;
     final static boolean newSchemeV3 = false;
     final static boolean newSchemeV4 = false;
     final static boolean newSchemeV4redis = false;
     final static boolean newSchemeV5text = false;
-    final static boolean newSchemeV5TPM = true;
+    final static boolean newSchemeV5TPM = false;
 
 
 
@@ -54,7 +54,7 @@ public class Main extends Application  {
 
     final static int noUsers = 10000;
 
-    final static boolean register = false;
+    final static boolean register = true;
     final static boolean login = true;
     static private HashMap<String, double[]> time;
     public static void main(String[] args) throws Exception {
