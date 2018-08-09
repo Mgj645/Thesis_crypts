@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.newScheme.newSchemeV0;
 import com.company.newScheme.newSchemeV5text;
 
 import javax.swing.*;
@@ -30,9 +31,9 @@ public class schemeGUI implements ActionListener {
 
     final static int minXlbl = 150;
     final static int minXField = 120;
-    static newSchemeV5text NS;
+    static newSchemeV0 NS;
     public static void main(String[] args) {
-        NS = new newSchemeV5text();
+        NS = new newSchemeV0();
         JFrame frame = new JFrame("New Scheme");
         frame.setSize(500, 200);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -87,7 +88,6 @@ public class schemeGUI implements ActionListener {
 
 
         birdButton = new JRadioButton(birdString);
-        birdButton.setMnemonic(KeyEvent.VK_B);
         birdButton.setActionCommand(birdString);
         birdButton.setSelected(true);
 
@@ -143,7 +143,6 @@ public class schemeGUI implements ActionListener {
         String command = e.getActionCommand();
         switch(command){
             case("submit"):
-                System.out.println(e.getActionCommand());
                 String username = new String(userText.getText());
                 String password = new String(passwordText.getPassword());
                 String wild = new String(wildText.getText());
