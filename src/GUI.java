@@ -27,9 +27,9 @@ public class GUI extends Application {
     Button submitBTN, simBTN,  schemeBTN;
     RadioButton loginBTN, registerBTN, cuBTN, cpBTN, delBTN;
     TextField simFIELD, userFIELD, passFIELD, wildFIELD;
-    ListView myHashes;
+    ListView myHashes, consoleView;
 
-    Label col1, col2, col3, simLABEL;
+    Label col1, col2, col3, simLABEL, consoleLABEL;
     final ToggleGroup operationGroup = new ToggleGroup();
     final ToggleGroup schemeGroup = new ToggleGroup();
     SchemeInterface sc;
@@ -37,7 +37,6 @@ public class GUI extends Application {
     boolean schemeSEL = false;
     @Override
     public void start(Stage primaryStage) throws Exception {
-
         primaryStage.setTitle("Password Database Schemes");
        //StackPane layout = new StackPane();
         GridPane grid = new GridPane();
@@ -46,8 +45,9 @@ public class GUI extends Application {
         grid.setHgap(10);
         setElements();
         grid.add(myHashes, sndCol + 4, 2, 4, 9);
+        grid.add(consoleView, sndCol, 8, 3, 3);
         grid.getChildren().addAll(col1, col2, col3,
-                plainBTN, md5BTN, sha3BTN, sha224, sspmBTN, schemeBTN, sgxBTN, simLABEL, simFIELD, simBTN,
+                plainBTN, md5BTN, sha3BTN, sha224, sspmBTN, schemeBTN, sgxBTN, simLABEL, simFIELD, simBTN, consoleLABEL,
                 submitBTN, loginBTN, registerBTN, cuBTN, cpBTN, delBTN, userFIELD, passFIELD, wildFIELD);
         Scene mainScene = new Scene(grid, 900, 500);
         primaryStage.setScene(mainScene);
@@ -94,6 +94,7 @@ public class GUI extends Application {
         GridPane.setConstraints(simBTN, 1, 9);
 
         //2nd column
+        consoleLABEL = new Label("Console Log");
         submitBTN = new Button("Submit");
 
         userFIELD = new TextField();
@@ -126,14 +127,15 @@ public class GUI extends Application {
 
         GridPane.setConstraints(submitBTN, sndCol + 2,6);
         GridPane.setConstraints(col2, sndCol,1);
+        GridPane.setConstraints(consoleLABEL, sndCol,7);
 
-
-        //3rd  column
+        //3rd  column & console
         myHashes = new ListView();
+        consoleView = new ListView();
+        consoleView.setStyle("-fx-control-inner-background: black; -fx-text-fill: yellow;");
         GridPane.setConstraints(col3, sndCol +4,1);
-
-
     }
+
     private void setActions() {
         simBTN.setOnAction(e-> {
             try {
@@ -157,23 +159,28 @@ public class GUI extends Application {
         submitBTN.setOnAction(e -> {
             try {
             if(registerBTN.isSelected()) {
-               sc.register(userFIELD.getText(), passFIELD.getText());
+               boolean b = sc.register(userFIELD.getText(), passFIELD.getText());
+               updateConsoleView("Register", b);
             }
 
             if(loginBTN.isSelected()){
-                sc.login(userFIELD.getText(), passFIELD.getText());
+                boolean b = sc.login(userFIELD.getText(), passFIELD.getText());
+                updateConsoleView("Login", b);
             }
 
             if(cuBTN.isSelected()){
-                sc.changeUsername(userFIELD.getText(), passFIELD.getText(), wildFIELD.getText());
+                boolean b = sc.changeUsername(userFIELD.getText(), passFIELD.getText(), wildFIELD.getText());
+                updateConsoleView("Change Username", b);
             }
 
             if(cpBTN.isSelected()){
-                sc.changePassword(userFIELD.getText(), passFIELD.getText(), wildFIELD.getText());
+                boolean b = sc.changePassword(userFIELD.getText(), passFIELD.getText(), wildFIELD.getText());
+                updateConsoleView("Change Password", b);
             }
 
             if(delBTN.isSelected()){
-                sc.deleteUser(userFIELD.getText(), passFIELD.getText());
+                boolean b =  sc.deleteUser(userFIELD.getText(), passFIELD.getText());
+                updateConsoleView("Delete User", b);
             }
 
             if(!loginBTN.isSelected()){
@@ -223,28 +230,35 @@ public class GUI extends Application {
         wildFIELD.setText("");
     }
 
-
+    boolean firstSim = false;
     private void simulateUsers() throws Exception {
-        BufferedReader lines = new BufferedReader(new FileReader("passwords.txt"));
-        String line = lines.readLine();
-        int i = 0;
-        passwords = new String[noUsers];
-        while (line != null && i < noUsers) {
-            passwords[i++] = line;
-            line = lines.readLine();
-        }
+            BufferedReader lines = new BufferedReader(new FileReader("passwords.txt"));
+            String line = lines.readLine();
+            int i = 0;
+            passwords = new String[noUsers];
+            while (line != null && i < noUsers) {
+                passwords[i++] = line;
+                line = lines.readLine();
+            }
 
-        lines = new BufferedReader(new FileReader("usernames.txt"));
-        line = lines.readLine();
-        i = 0;
-        usernames = new String[noUsers];
-        while (line != null && i < noUsers) {
-            usernames[i++] = line;
+            lines = new BufferedReader(new FileReader("usernames.txt"));
             line = lines.readLine();
-        }
+            i = 0;
+            usernames = new String[noUsers];
+            while (line != null && i < noUsers) {
+                usernames[i++] = line;
+                line = lines.readLine();
+            }
+
+        long startTime = System.nanoTime();
 
         for (int j = 0; j < noUsers; j++)
             sc.register(usernames[j], passwords[j]);
+        long endTime = System.nanoTime();
+        double duration = (double) ((endTime - startTime)/(1000000));
+
+
+        consoleView.getItems().add("Simmed " + noUsers + " Users and it took " + duration + " ms.");
 
         updateListView();
     }
@@ -267,4 +281,10 @@ public class GUI extends Application {
         }
     }
 
+    private void updateConsoleView(String op, boolean sta){
+        if(sta)
+            consoleView.getItems().add(op + " sucessful!");
+        else
+            consoleView.getItems().add(op + " not sucessful!");
+    }
 }
