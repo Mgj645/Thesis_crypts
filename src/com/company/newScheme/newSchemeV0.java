@@ -51,6 +51,11 @@ public class newSchemeV0 implements SchemeInterface {
         return users.remove(applyFunction(username, password));
     }
 
+    @Override
+    public Object getDB() {
+        return users;
+    }
+
     public String applyFunction(String username, String password) {
         String user = null;
         try {

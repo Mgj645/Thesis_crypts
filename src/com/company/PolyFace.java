@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.List;
 
 public class PolyFace implements SchemeInterface{
+    public Object getDB() {
+        return null;
+    }
     private PolyPasswordHasher pph;
     private final int shares = 0;
 

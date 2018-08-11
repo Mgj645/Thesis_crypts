@@ -9,7 +9,9 @@ import java.util.HashSet;
 import java.util.Random;
 
 public class newSchemeV5TPM implements SchemeInterface {
-
+    public Object getDB() {
+        return users;
+    }
     private HashSet<String> users;
     private HashSet<String> usernames;
 

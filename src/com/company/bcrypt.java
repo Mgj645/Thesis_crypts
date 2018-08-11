@@ -58,6 +58,9 @@ import java.util.Map;
  * @author Damien Miller
  */
 public class bcrypt extends Scheme implements SchemeInterface{
+    public Object getDB() {
+        return users;
+    }
     Map<String, String> users;
     final static String fileName = "bcrypt.txt";
 

@@ -12,7 +12,9 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class newSchemeV4 implements SchemeInterface {
-
+    public Object getDB() {
+        return users;
+    }
     private HashSet<String> users;
     private HashSet<String> usernames;
 

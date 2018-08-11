@@ -9,7 +9,9 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.HashSet;
 
 public class newSchemeV1 implements SchemeInterface {
-
+    public Object getDB() {
+        return users;
+    }
     private HashSet<String> users;
     private HashSet<String> usernames;
 

@@ -11,7 +11,9 @@ import java.io.*;
 import java.util.*;
 
 public class newSchemeV1SHAMD5 implements SchemeInterface {
-
+    public Object getDB() {
+        return users;
+    }
     private HashSet<String> users;
     private HashSet<String> usernames;
 

@@ -6,6 +6,9 @@ import org.bouncycastle.util.encoders.Hex;
 import java.util.Map;
 
 public class SHA_3 extends Scheme implements SchemeInterface{
+    public Object getDB() {
+        return users;
+    }
     Map<String, String> users;
     final static String fileName = "users_sha3.txt";
 
@@ -14,7 +17,7 @@ public class SHA_3 extends Scheme implements SchemeInterface{
     }
 
     public boolean login(String username, String password){
-        username = applyFunction(username);
+       // username = applyFunction(username);
 
         if(!users.containsKey(username))
             return false;
@@ -24,7 +27,7 @@ public class SHA_3 extends Scheme implements SchemeInterface{
 
 
     public boolean register(String username, String password){
-        username = applyFunction(username);
+       // username = applyFunction(username);
 
         if(users.containsKey(username))
             return false;

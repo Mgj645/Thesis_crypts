@@ -9,7 +9,9 @@ import org.bouncycastle.util.encoders.Hex;
 import java.util.HashSet;
 
 public class newSchemeV1sha3 implements SchemeInterface {
-
+    public Object getDB() {
+        return users;
+    }
     private HashSet<String> users;
     private HashSet<String> usernames;
 

@@ -12,4 +12,5 @@ public interface SchemeInterface {
 
     boolean deleteUser(String username, String password);
 
+    Object getDB();
 }

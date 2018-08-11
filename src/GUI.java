@@ -1,40 +1,187 @@
+import com.company.*;
+import com.company.newScheme.newSchemeV1;
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import javax.swing.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 public class GUI extends Application {
-    Button submitBTN;
+
+    static int noUsers;
+
+    static String[] passwords;
+    static String[] usernames;
+    final int sndCol = 5;
+
+    RadioButton plainBTN, md5BTN, sha3BTN, sha224, sspmBTN, sgxBTN;
+
+    Button submitBTN, simBTN,  schemeBTN;
     RadioButton loginBTN, registerBTN, cuBTN, cpBTN, delBTN;
-    TextField userFIELD, passFIELD, wildFIELD;
+    TextField simFIELD, userFIELD, passFIELD, wildFIELD;
     ListView myHashes;
-    final ToggleGroup group = new ToggleGroup();
+
+    Label col1, col2, col3, simLABEL;
+    final ToggleGroup operationGroup = new ToggleGroup();
+    final ToggleGroup schemeGroup = new ToggleGroup();
+    SchemeInterface sc;
+
+    boolean schemeSEL = false;
     @Override
     public void start(Stage primaryStage) throws Exception {
+
         primaryStage.setTitle("Password Database Schemes");
        //StackPane layout = new StackPane();
         GridPane grid = new GridPane();
-        grid.setPadding((new Insets(10, 0 , 10, 10)));
-        grid.setVgap(8);
+        grid.setPadding((new Insets(10, 10 , 10, 10)));
+        grid.setVgap(13);
         grid.setHgap(10);
-        setButtons();
-
-        grid.add(myHashes, 4, 1, 4, 6);
-        grid.getChildren().addAll(submitBTN, loginBTN, registerBTN, cuBTN, cpBTN, delBTN, userFIELD, passFIELD, wildFIELD);
-        Scene mainScene = new Scene(grid, 600, 500);
+        setElements();
+        grid.add(myHashes, sndCol + 4, 2, 4, 9);
+        grid.getChildren().addAll(col1, col2, col3,
+                plainBTN, md5BTN, sha3BTN, sha224, sspmBTN, schemeBTN, sgxBTN, simLABEL, simFIELD, simBTN,
+                submitBTN, loginBTN, registerBTN, cuBTN, cpBTN, delBTN, userFIELD, passFIELD, wildFIELD);
+        Scene mainScene = new Scene(grid, 900, 500);
         primaryStage.setScene(mainScene);
         primaryStage.show();
         //grid.setStyle("-fx-background-color: #4286f4;");
+        setActions();
+    }
+
+    private void setElements(){
+        col1 = new Label("1. Choose a Scheme");
+        col2 = new Label("2. Choose an Operation");
+        col3 = new Label("Database View");
+
+        //1st column
+        simLABEL = new Label("Simulate Users");
+        simFIELD = new TextField();
+        simBTN = new Button("Simulate");
+        simFIELD.setPromptText("Input number, max 1M");
+        plainBTN = new RadioButton("plaintext");
+        md5BTN = new RadioButton("MD5");
+        sha3BTN = new RadioButton("SHA-3");
+        sha224 = new RadioButton("SHA-224");
+        sspmBTN = new RadioButton("SSPM");
+        sgxBTN = new RadioButton("SSPM with Intel SGX");
+
+        schemeBTN = new Button("Enter Scheme");
+
+        plainBTN.setToggleGroup(schemeGroup); md5BTN.setToggleGroup(schemeGroup);
+        sha3BTN.setToggleGroup(schemeGroup); sha224.setToggleGroup(schemeGroup);
+        sspmBTN.setToggleGroup(schemeGroup);
+
+        GridPane.setConstraints(plainBTN, 0,2);
+        GridPane.setConstraints(md5BTN, 0,3);
+        GridPane.setConstraints(sha3BTN, 0,4);
+        GridPane.setConstraints(sha224, 0,5);
+        GridPane.setConstraints(sspmBTN, 0,6);
+        GridPane.setConstraints(sgxBTN, 0,7);
+
+        GridPane.setConstraints(schemeBTN, 1,7);
+
+        GridPane.setConstraints(col1, 0,1);
+        GridPane.setConstraints(simLABEL, 0,8);
+        GridPane.setConstraints(simFIELD, 0, 9);
+        GridPane.setConstraints(simBTN, 1, 9);
+
+        //2nd column
+        submitBTN = new Button("Submit");
+
+        userFIELD = new TextField();
+        userFIELD.setPromptText("username");
+        passFIELD = new TextField();
+        passFIELD.setPromptText("password");
+
+        wildFIELD = new TextField();
+        wildFIELD.setVisible(false);
+
+        loginBTN = new RadioButton("Login");
+        registerBTN = new RadioButton("Register");
+        cuBTN = new RadioButton("Change Username");
+        cpBTN = new RadioButton("Change Password");
+        delBTN = new RadioButton("Delete User");
+
+        loginBTN.setToggleGroup(operationGroup); registerBTN.setToggleGroup(operationGroup);
+        cuBTN.setToggleGroup(operationGroup); cpBTN.setToggleGroup(operationGroup);
+        delBTN.setToggleGroup(operationGroup);
+
+        GridPane.setConstraints(loginBTN, sndCol,2);
+        GridPane.setConstraints(registerBTN, sndCol,3);
+        GridPane.setConstraints(cuBTN, sndCol,4);
+        GridPane.setConstraints(cpBTN, sndCol,5);
+        GridPane.setConstraints(delBTN, sndCol,6);
+
+        GridPane.setConstraints(userFIELD, sndCol + 2,2);
+        GridPane.setConstraints(passFIELD, sndCol + 2,3);
+        GridPane.setConstraints(wildFIELD, sndCol + 2,4);
+
+        GridPane.setConstraints(submitBTN, sndCol + 2,6);
+        GridPane.setConstraints(col2, sndCol,1);
+
+
+        //3rd  column
+        myHashes = new ListView();
+        GridPane.setConstraints(col3, sndCol +4,1);
+
+
+    }
+    private void setActions() {
+        simBTN.setOnAction(e-> {
+            try {
+                //System.out.println(simFIELD.getText());
+                noUsers = Integer.parseInt(simFIELD.getText());
+                simulateUsers();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        });
+        schemeBTN.setOnAction(e -> {
+            schemeSEL = true;
+            if(plainBTN.isSelected()) sc = new plain_text(); else
+            if(md5BTN.isSelected()) sc = new md5(); else
+            if(sha3BTN.isSelected()) sc = new SHA_3(); else
+            if(sha224.isSelected()) sc = new SHA_224(); else
+            if(sspmBTN.isSelected()) sc = new newSchemeV1(); else
+                schemeSEL = false;
+        });
+
         submitBTN.setOnAction(e -> {
-                String user = userFIELD.getText() + ":" + passFIELD.getText();
-                myHashes.getItems().add(user);
+            try {
+            if(registerBTN.isSelected()) {
+               sc.register(userFIELD.getText(), passFIELD.getText());
+            }
+
+            if(loginBTN.isSelected()){
+                sc.login(userFIELD.getText(), passFIELD.getText());
+            }
+
+            if(cuBTN.isSelected()){
+                sc.changeUsername(userFIELD.getText(), passFIELD.getText(), wildFIELD.getText());
+            }
+
+            if(cpBTN.isSelected()){
+                sc.changePassword(userFIELD.getText(), passFIELD.getText(), wildFIELD.getText());
+            }
+
+            if(delBTN.isSelected()){
+                sc.deleteUser(userFIELD.getText(), passFIELD.getText());
+            }
+
+            if(!loginBTN.isSelected()){
+                updateListView();
+            }
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
         });
 
         loginBTN.setOnAction(e -> logRegDelforms());
@@ -55,44 +202,6 @@ public class GUI extends Application {
         });
     }
 
-    private void setButtons(){
-        myHashes = new ListView();
-        submitBTN = new Button();
-        submitBTN.setText("Submit");
-
-        userFIELD = new TextField();
-        userFIELD.setPromptText("username");
-        passFIELD = new TextField();
-        passFIELD.setPromptText("password");
-
-        wildFIELD = new TextField();
-        wildFIELD.setVisible(false);
-
-
-        loginBTN = new RadioButton("Login");
-        registerBTN = new RadioButton("Register");
-        cuBTN = new RadioButton("Change Username");
-        cpBTN = new RadioButton("Change Password");
-        delBTN = new RadioButton("Delete User");
-
-        loginBTN.setToggleGroup(group); registerBTN.setToggleGroup(group);
-        cuBTN.setToggleGroup(group); cpBTN.setToggleGroup(group);
-        delBTN.setToggleGroup(group);
-
-        GridPane.setConstraints(loginBTN, 0,1);
-        GridPane.setConstraints(registerBTN, 0,2);
-        GridPane.setConstraints(cuBTN, 0,3);
-        GridPane.setConstraints(cpBTN, 0,4);
-        GridPane.setConstraints(delBTN, 0,5);
-
-        GridPane.setConstraints(userFIELD, 2,1);
-        GridPane.setConstraints(passFIELD, 2,2);
-        GridPane.setConstraints(wildFIELD, 2,3);
-
-        GridPane.setConstraints(submitBTN, 2,5);
-
-    }
-
     private void logRegDelforms(){
         userFIELD.setVisible(true);
         userFIELD.setText("");
@@ -103,7 +212,6 @@ public class GUI extends Application {
         passFIELD.setPromptText("password");
 
         wildFIELD.setVisible(false);
-
     }
 
     private void cucpForms(){
@@ -114,4 +222,49 @@ public class GUI extends Application {
         userFIELD.setText("");
         wildFIELD.setText("");
     }
+
+
+    private void simulateUsers() throws Exception {
+        BufferedReader lines = new BufferedReader(new FileReader("passwords.txt"));
+        String line = lines.readLine();
+        int i = 0;
+        passwords = new String[noUsers];
+        while (line != null && i < noUsers) {
+            passwords[i++] = line;
+            line = lines.readLine();
+        }
+
+        lines = new BufferedReader(new FileReader("usernames.txt"));
+        line = lines.readLine();
+        i = 0;
+        usernames = new String[noUsers];
+        while (line != null && i < noUsers) {
+            usernames[i++] = line;
+            line = lines.readLine();
+        }
+
+        for (int j = 0; j < noUsers; j++)
+            sc.register(usernames[j], passwords[j]);
+
+        updateListView();
+    }
+
+    private void updateListView(){
+        myHashes.getItems().clear();
+        if(sspmBTN.isSelected()){
+            HashSet users = (HashSet) sc.getDB();
+            myHashes.getItems().addAll(users);
+        }
+        else{
+            Map<String, String> users = (Map<String, String>) sc.getDB();
+            List<String> users_ = new ArrayList();
+            for(Map.Entry<String, String> entry : users.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                users_.add(key+":"+value);
+            }
+            myHashes.getItems().addAll(users_);
+        }
+    }
+
 }

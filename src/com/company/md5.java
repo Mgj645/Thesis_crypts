@@ -6,6 +6,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 public class md5 extends Scheme implements SchemeInterface{
+    public Object getDB() {
+        return users;
+    }
     Map<String, String> users;
     final static String fileName = "users_md5.txt";
 
@@ -14,7 +17,7 @@ public class md5 extends Scheme implements SchemeInterface{
     }
 
     public boolean login(String username, String password){
-        username = applyFunction(username);
+       // username = applyFunction(username);
         if(!users.containsKey(username))
             return false;
         else
@@ -22,7 +25,7 @@ public class md5 extends Scheme implements SchemeInterface{
     }
 
     public boolean register(String username, String password){
-        username = applyFunction(username);
+        //username = applyFunction(username);
         if(users.containsKey(username))
             return false;
         else {

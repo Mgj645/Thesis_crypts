@@ -15,6 +15,9 @@ import java.security.SignatureException;
 import java.util.*;
 
 public class newSchemeOLD implements SchemeInterface {
+    public Object getDB() {
+        return users;
+    }
 
     private HashSet<String> users;
     private HashSet<String> usernames;

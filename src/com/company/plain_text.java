@@ -3,7 +3,9 @@ package com.company;
 import java.util.Map;
 
 public class plain_text extends Scheme implements SchemeInterface {
-
+    public Object getDB() {
+        return users;
+    }
     Map<String, String> users;
     final static String fileName = "plaintext.txt";
 

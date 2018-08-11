@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class newSchemeV4redis implements SchemeInterface {
-
+    public Object getDB() {
+        return null;
+    }
     private static String sha1key;
     private final static String sep = "|%";
 

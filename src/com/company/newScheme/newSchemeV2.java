@@ -9,7 +9,9 @@ import java.io.*;
 import java.util.*;
 
 public class newSchemeV2 implements SchemeInterface {
-
+    public Object getDB() {
+        return users;
+    }
     private HashSet<String> users;
     private HashSet<String> usernames;
 
