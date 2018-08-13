@@ -13,9 +13,6 @@ import java.util.Properties;
 
 //import android.util.Base64;
 public class AES extends Scheme implements SchemeInterface {
-    public Object getDB() {
-        return cipheredUsers;
-    }
     final static String fileName = "AES.txt";
     final static String key1 = "DXeBGoKOLzydaiHtIG7qCdVkLo5cd7se";
     private byte[] cipheredUsers;
@@ -116,6 +113,11 @@ public class AES extends Scheme implements SchemeInterface {
             return false;
         }
 
+    }
+
+    @Override
+    public Object getDB() {
+        return null;
     }
 
     static IvParameterSpec ivSpec;

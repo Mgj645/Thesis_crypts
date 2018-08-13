@@ -186,6 +186,7 @@ public class newSchemeV4 implements SchemeInterface {
         }
         return user;
     }
+
     private void dumpLog(){
         try {
             HashMap<String, String> dbpw;

@@ -8,7 +8,9 @@ import tss.tpm.TPM_ALG_ID;
 
 import java.io.*;
 import java.util.*;
-
+/*
+            This version does all hash functions inside the TPM. It is slower.
+ */
 public class newSchemeV5text implements SchemeInterface {
     public Object getDB() {
         return users;
