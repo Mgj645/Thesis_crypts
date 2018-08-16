@@ -66,12 +66,14 @@ public class SSPM implements SchemeInterface {
             cipherdb = (byte[]) readData(chipheredDB);
 
         log = new ArrayList<>();
+
+        if(version_newkey )
         new Thread(() -> {
             try {
                 int count = 0;
                 while(2+2==4) {
                     Thread.sleep(10000);
-                    dumpJedis();
+                    if(version_redis) dumpJedis();
                     if(count++ > 3) {
                       //  changeKey();
                         count=0;
