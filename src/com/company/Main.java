@@ -18,21 +18,22 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Main extends Application  {
-
+    final static private boolean resultGraph = false;
+    final static private boolean resultValues = true;
 
     static String[] passwords;
     static String[] usernames;
 
-    final static boolean plain = false;
+    final static boolean plain = true;
     final static boolean md5 = false;
     final static boolean sha_224 = false;
     final static boolean sha_3 = false;
     final static boolean b_crypt = false;
     final static boolean aes256 = false;
-    final static boolean polyPassword = true;
+    final static boolean polyPassword = false;
 
     final static boolean newSchemeV0 = false;
-    final static boolean newSchemeV1 = true;
+    final static boolean newSchemeV1 = false;
     final static boolean newSchemeV2 = false;
     final static boolean newSchemeV3 = false;
     final static boolean newSchemeV4 = false;
@@ -104,7 +105,11 @@ public class Main extends Application  {
 
             if(polyPassword)  time.put("PolyPasswordHasher", runScheme("PolyHash", new PolyFace()));
 
-            launch(args);
+            if(resultGraph)
+                 launch(args);
+
+            if(resultValues)
+                getResultValues();
 
             //if (sequence_hash) seqHash();
        /* } else if (command.equals(("2"))) {
@@ -153,6 +158,19 @@ public class Main extends Application  {
             System.out.println("Command not recognized");
 
         }*/
+    }
+
+    private static void getResultValues() {
+        System.out.println("Number of Users: " + noUsers);
+        Iterator it = time.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            String schemeName = (String) pair.getKey();
+            Double timeRegister = ((double[]) pair.getValue())[0];
+            Double timeLogin = ((double[]) pair.getValue())[1];
+
+            System.out.println(schemeName + "- register: " + timeRegister + " ms. " + " login: " + timeLogin + " ms. ");
+        }
     }
 
     private static void simulateUsers() throws IOException {

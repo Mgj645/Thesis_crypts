@@ -1,6 +1,7 @@
 import com.company.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -21,7 +22,7 @@ public class GUI extends Application {
     static String[] usernames;
     final int sndCol = 5;
 
-    RadioButton plainBTN, md5BTN, sha3BTN, sha224, sspmBTN, sgxBTN;
+    RadioButton plainBTN, md5BTN, sha3BTN, sha224, sspmBTN, sgxBTN, bcryptBTN;
 
     Button submitBTN, simBTN, schemeBTN;
     RadioButton loginBTN, registerBTN, cuBTN, cpBTN, delBTN;
@@ -46,10 +47,10 @@ public class GUI extends Application {
         grid.setVgap(13);
         grid.setHgap(10);
         setElements();
-        grid.add(myHashes, sndCol + 4, 2, 4, 9);
-        grid.add(consoleView, sndCol, 8, 3, 3);
+        grid.add(myHashes, sndCol + 4, 2, 4, 11);
+        grid.add(consoleView, sndCol, 8, 3, 5);
         grid.getChildren().addAll(col1, col2, col3,
-                plainBTN, md5BTN, sha3BTN, sha224, sspmBTN, schemeBTN, sgxBTN, simLABEL, simFIELD, simBTN, consoleLABEL,
+                plainBTN, md5BTN, sha3BTN, sha224, sspmBTN, bcryptBTN, schemeBTN, sgxBTN, simLABEL, simFIELD, simBTN, consoleLABEL,
                 submitBTN, loginBTN, registerBTN, cuBTN, cpBTN, delBTN, userFIELD, passFIELD, wildFIELD);
         Scene mainScene = new Scene(grid, 900, 500);
         primaryStage.setScene(mainScene);
@@ -73,6 +74,7 @@ public class GUI extends Application {
         sha3BTN = new RadioButton("SHA-3");
         sha224 = new RadioButton("SHA-224");
         sspmBTN = new RadioButton("SSPM");
+        bcryptBTN = new RadioButton("B-Crypt");
         sgxBTN = new RadioButton("SSPM with Intel SGX");
 
         schemeBTN = new Button("Enter Scheme");
@@ -82,21 +84,23 @@ public class GUI extends Application {
         sha3BTN.setToggleGroup(schemeGroup);
         sha224.setToggleGroup(schemeGroup);
         sspmBTN.setToggleGroup(schemeGroup);
+        bcryptBTN.setToggleGroup(schemeGroup);
 
         GridPane.setConstraints(plainBTN, 0, 2);
         GridPane.setConstraints(md5BTN, 0, 3);
         GridPane.setConstraints(sha3BTN, 0, 4);
         GridPane.setConstraints(sha224, 0, 5);
-        GridPane.setConstraints(sspmBTN, 0, 6);
+        GridPane.setConstraints(bcryptBTN, 0, 6);
         GridPane.setConstraints(sgxBTN, 0, 7);
+        GridPane.setConstraints(sspmBTN, 0, 8);
 
-        GridPane.setConstraints(schemeBTN, 1, 7);
+        GridPane.setConstraints(schemeBTN, 1, 8);
 
         GridPane.setConstraints(col1, 0, 1);
-        GridPane.setConstraints(simLABEL, 0, 8);
-        GridPane.setConstraints(simFIELD, 0, 9);
-        GridPane.setConstraints(simBTN, 1, 9);
-
+        GridPane.setConstraints(simLABEL, 0, 9);
+        GridPane.setConstraints(simFIELD, 0, 10);
+        GridPane.setConstraints(simBTN, 1, 10);
+        simLABEL.setAlignment(Pos.CENTER);
         //2nd column
         consoleLABEL = new Label("Console Log");
         submitBTN = new Button("Submit");
@@ -126,6 +130,7 @@ public class GUI extends Application {
         GridPane.setConstraints(cuBTN, sndCol, 4);
         GridPane.setConstraints(cpBTN, sndCol, 5);
         GridPane.setConstraints(delBTN, sndCol, 6);
+
 
         GridPane.setConstraints(userFIELD, sndCol + 2, 2);
         GridPane.setConstraints(passFIELD, sndCol + 2, 3);

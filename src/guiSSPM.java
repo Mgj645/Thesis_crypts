@@ -14,7 +14,7 @@ public class guiSSPM{
 
         Stage window = new Stage();
         window.initModality(Modality.APPLICATION_MODAL);
-        window.setTitle(title);
+        window.setTitle("SSPM settings");
         window.setMinWidth(250);
         Label label = new Label("Pick your SSPM settings");
 
